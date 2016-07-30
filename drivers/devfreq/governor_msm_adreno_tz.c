@@ -60,7 +60,8 @@ static DEFINE_SPINLOCK(suspend_lock);
 #define TAG "msm_adreno_tz: "
 
 #if 1
-static unsigned int adrenoboost = 0;
+static unsigned int adrenoboost = 1;
+
 #endif
 
 static u64 suspend_time;
@@ -419,7 +420,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 
 	*freq = stats.current_frequency;
 
-
 	/*
 	 * Force to use & record as min freq when system has
 	 * entered pm-suspend or screen-off state.
@@ -436,7 +436,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 	}
 #endif
 
-
 	priv->bin.total_time += stats.total_time;
 #if 1
 	// scale busy time up based on adrenoboost parameter, only if MIN_BUSY exceeded...
@@ -448,9 +447,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 #else
 	priv->bin.busy_time += stats.busy_time;
 #endif
-
-	if (stats.private_data)
-		context_count =  *((int *)stats.private_data);
 
 	/* Update the GPU load statistics */
 	compute_work_load(&stats, priv, devfreq);
@@ -484,7 +480,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 		scm_data[0] = level;
 		scm_data[1] = priv->bin.total_time;
 		scm_data[2] = priv->bin.busy_time;
-		scm_data[3] = context_count;
 		__secure_tz_update_entry3(scm_data, sizeof(scm_data),
 					&val, sizeof(val), priv);
 	}
