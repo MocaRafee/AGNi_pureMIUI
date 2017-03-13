@@ -19,7 +19,6 @@
 #include <linux/ipc_router.h>
 #include "smp2p_private.h"
 
-#define SET_DELAY (2 * HZ)
 #define PROC_AWAKE_ID 12 /* 12th bit */
 #if defined(CONFIG_KERNEL_CUSTOM_WAYNE) || defined(CONFIG_KERNEL_CUSTOM_WHYRED)
 int slst_gpio_base_id;
