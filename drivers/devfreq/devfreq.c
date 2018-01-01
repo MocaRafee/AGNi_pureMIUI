@@ -91,12 +91,12 @@ static void devfreq_set_freq_limits(struct devfreq *devfreq)
 	devfreq->max_freq = max;
 }
 
-/**
+/*
  * devfreq_get_freq_level() - Lookup freq_table for the frequency
  * @devfreq:	the devfreq instance
  * @freq:	the target frequency
  */
-/*int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
+int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
 {
 	int lev;
 
