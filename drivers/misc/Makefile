@@ -73,3 +73,5 @@ obj-$(CONFIG_ANT_CHECK)		+= ant_check.o
 subdir-ccflags-y += \
 	-Wno-ignored-attributes \
 	-Wno-header-guard
+
+obj-$(CONFIG_DTS_EAGLE)         += dts_eagle/
