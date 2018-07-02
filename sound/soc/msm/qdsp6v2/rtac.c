@@ -125,6 +125,11 @@ struct mutex			rtac_voice_mutex;
 struct mutex			rtac_voice_apr_mutex;
 struct mutex			rtac_afe_apr_mutex;
 
+static struct mutex			rtac_asm_cal_mutex;
+static struct mutex			rtac_adm_cal_mutex;
+static struct mutex			rtac_afe_cal_mutex;
+static struct mutex			rtac_voice_cal_mutex;
+
 int rtac_clear_mapping(uint32_t cal_type)
 {
 	int result = 0;
@@ -2000,6 +2005,7 @@ static int __init rtac_init(void)
 	init_waitqueue_head(&rtac_adm_apr_data.cmd_wait);
 	mutex_init(&rtac_adm_mutex);
 	mutex_init(&rtac_adm_apr_mutex);
+	mutex_init(&rtac_adm_cal_mutex);
 
 	rtac_adm_buffer = kzalloc(
 		rtac_cal[ADM_RTAC_CAL].map_data.map_size, GFP_KERNEL);
@@ -2016,6 +2022,7 @@ static int __init rtac_init(void)
 		init_waitqueue_head(&rtac_asm_apr_data[i].cmd_wait);
 	}
 	mutex_init(&rtac_asm_apr_mutex);
+	mutex_init(&rtac_asm_cal_mutex);
 
 	rtac_asm_buffer = kzalloc(
 		rtac_cal[ASM_RTAC_CAL].map_data.map_size, GFP_KERNEL);
@@ -2031,6 +2038,7 @@ static int __init rtac_init(void)
 	atomic_set(&rtac_afe_apr_data.cmd_state, 0);
 	init_waitqueue_head(&rtac_afe_apr_data.cmd_wait);
 	mutex_init(&rtac_afe_apr_mutex);
+	mutex_init(&rtac_afe_cal_mutex);
 
 	rtac_afe_buffer = kzalloc(
 		rtac_cal[AFE_RTAC_CAL].map_data.map_size, GFP_KERNEL);
@@ -2051,6 +2059,7 @@ static int __init rtac_init(void)
 	}
 	mutex_init(&rtac_voice_mutex);
 	mutex_init(&rtac_voice_apr_mutex);
+	mutex_init(&rtac_voice_cal_mutex);
 
 	rtac_voice_buffer = kzalloc(
 		rtac_cal[VOICE_RTAC_CAL].map_data.map_size, GFP_KERNEL);
