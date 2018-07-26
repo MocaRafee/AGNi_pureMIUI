@@ -32,11 +32,6 @@ config IOSCHED_DEADLINE
 	  a new point in the service tree and doing a batch of IO from there
 	  in case of expiry.
 
-
-config IOSCHED_MAPLE
-	tristate "Maple I/O scheduler"
-	default y
-
 config IOSCHED_TRIPNDROID
 	tristate "TripNDroid IO Scheduler"
 	default n
@@ -44,7 +39,6 @@ config IOSCHED_TRIPNDROID
 	  The TripNDroid IO Scheduler is based on noop, deadline and vr
 	  it uses deadlines to ensure some fairness. The scheduler is build
 	  to keep a minimum overhead. It is mainly build for mobile devices.
-
 
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"

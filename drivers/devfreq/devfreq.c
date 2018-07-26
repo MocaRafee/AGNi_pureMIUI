@@ -108,7 +108,7 @@ int devfreq_get_freq_level(struct devfreq *devfreq, unsigned long freq)
 }
 EXPORT_SYMBOL(devfreq_get_freq_level);
 /*
-/**
+ *
  * devfreq_update_status() - Update statistics of devfreq behavior
  * @devfreq:	the devfreq instance
  * @freq:	the update target frequency
@@ -146,7 +146,7 @@ out:
 	return ret;
 }
 
-/**
+/*
  * find_devfreq_governor() - find devfreq governor from name
  * @name:	name of the governor
  *
@@ -174,7 +174,7 @@ static struct devfreq_governor *find_devfreq_governor(const char *name)
 
 /* Load monitoring helper functions for governors use */
 
-/**
+/*
  * update_devfreq() - Reevaluate the device and configure frequency.
  * @devfreq:	the devfreq instance.
  *
@@ -231,7 +231,7 @@ int update_devfreq(struct devfreq *devfreq)
 }
 EXPORT_SYMBOL(update_devfreq);
 
-/**
+/*
  * devfreq_monitor() - Periodically poll devfreq objects.
  * @work:	the work struct used to run devfreq_monitor periodically.
  *
