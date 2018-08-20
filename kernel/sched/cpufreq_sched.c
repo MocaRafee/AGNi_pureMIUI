@@ -98,7 +98,7 @@ static bool finish_last_request(struct gov_data *gd, unsigned int cur_freq)
 		int usec_left = ktime_to_ns(ktime_sub(throttle, now));
 
 		usec_left /= NSEC_PER_USEC;
-		trace_cpufreq_sched_throttled(usec_left);
+//		trace_cpufreq_sched_throttled(usec_left);
 		usleep_range(usec_left, usec_left + 100);
 		now = ktime_get();
 		if (ktime_after(now, throttle))
@@ -215,8 +215,8 @@ static void update_fdomain_capacity_request(int cpu)
 	if (freq_new < policy->min)
 		freq_new = policy->min;
 
-	trace_cpufreq_sched_request_opp(cpu, capacity, freq_new,
-					gd->requested_freq);
+//	trace_cpufreq_sched_request_opp(cpu, capacity, freq_new,
+//					gd->requested_freq);
 	if (freq_new == gd->requested_freq)
 		goto out;
 
@@ -253,7 +253,7 @@ void update_cpu_capacity_request(int cpu, bool request)
 	if (new_capacity == scr->total)
 		return;
 
-	trace_cpufreq_sched_update_capacity(cpu, request, scr, new_capacity);
+//	trace_cpufreq_sched_update_capacity(cpu, request, scr, new_capacity);
 
 	scr->total = new_capacity;
 	if (request)
