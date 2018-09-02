@@ -117,6 +117,7 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
 				__set_bit(WOW_GTK_ERR_EVENT, &wow_mask);
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 		if (wowlan->magic_pkt)
 			__set_bit(WOW_MAGIC_PKT_RECVD_EVENT, &wow_mask);
@@ -125,6 +126,8 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
 			__set_bit(WOW_GTK_ERR_EVENT, &wow_mask);
 =======
 >>>>>>> LA.UM.6.2.r1-06900-sdm660.0
+=======
+>>>>>>> LA.UM.6.2.r1-07200-sdm660.0
 		break;
 	default:
 		break;
