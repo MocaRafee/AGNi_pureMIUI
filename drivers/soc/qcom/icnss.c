@@ -2298,35 +2298,6 @@ out:
 	return 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-static int icnss_call_driver_remove(struct icnss_priv *priv)
-{
-	icnss_pr_dbg("Calling driver remove state: 0x%lx\n", priv->state);
-
-	clear_bit(ICNSS_FW_READY, &priv->state);
-
-	if (!test_bit(ICNSS_DRIVER_PROBED, &penv->state))
-		return 0;
-
-	if (!priv->ops || !priv->ops->remove)
-		return 0;
-
-	set_bit(ICNSS_DRIVER_UNLOADING, &penv->state);
-	penv->ops->remove(&priv->pdev->dev);
-
-	clear_bit(ICNSS_DRIVER_UNLOADING, &penv->state);
-	clear_bit(ICNSS_DRIVER_PROBED, &priv->state);
-
-	icnss_hw_power_off(penv);
-
-	return 0;
-}
-
-=======
->>>>>>> LA.UM.6.2.r1-06900-sdm660.0
-=======
->>>>>>> LA.UM.6.2.r1-07200-sdm660.0
 static int icnss_fw_crashed(struct icnss_priv *priv,
 			    struct icnss_event_pd_service_down_data *event_data)
 {

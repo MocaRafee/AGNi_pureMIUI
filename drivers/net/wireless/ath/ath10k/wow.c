@@ -116,18 +116,6 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
 			if (wowlan->gtk_rekey_failure)
 				__set_bit(WOW_GTK_ERR_EVENT, &wow_mask);
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-		if (wowlan->magic_pkt)
-			__set_bit(WOW_MAGIC_PKT_RECVD_EVENT, &wow_mask);
-
-		if (wowlan->gtk_rekey_failure)
-			__set_bit(WOW_GTK_ERR_EVENT, &wow_mask);
-=======
->>>>>>> LA.UM.6.2.r1-06900-sdm660.0
-=======
->>>>>>> LA.UM.6.2.r1-07200-sdm660.0
 		break;
 	default:
 		break;
@@ -483,6 +471,7 @@ static void ath10k_wow_op_report_wakeup_reason(struct ath10k *ar)
 	struct cfg80211_wowlan_wakeup *wakeup = &ar->wow.wakeup;
 	struct ath10k_vif *arvif;
 
+	memset(wakeup, 0, sizeof(struct cfg80211_wowlan_wakeup));
 	switch (ar->wow.wakeup_reason) {
 	case WOW_REASON_UNSPECIFIED:
 		wakeup = NULL;
@@ -500,6 +489,7 @@ static void ath10k_wow_op_report_wakeup_reason(struct ath10k *ar)
 		wakeup->gtk_rekey_failure = true;
 		break;
 	}
+	ar->wow.wakeup_reason = WOW_REASON_UNSPECIFIED;
 
 	if (wakeup) {
 		wakeup->pattern_idx = -1;
