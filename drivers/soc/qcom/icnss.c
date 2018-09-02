@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2298,6 +2298,7 @@ out:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int icnss_call_driver_remove(struct icnss_priv *priv)
 {
 	icnss_pr_dbg("Calling driver remove state: 0x%lx\n", priv->state);
@@ -2321,6 +2322,8 @@ static int icnss_call_driver_remove(struct icnss_priv *priv)
 	return 0;
 }
 
+=======
+>>>>>>> LA.UM.6.2.r1-06900-sdm660.0
 static int icnss_fw_crashed(struct icnss_priv *priv,
 			    struct icnss_event_pd_service_down_data *event_data)
 {
@@ -2356,10 +2359,7 @@ static int icnss_driver_event_pd_service_down(struct icnss_priv *priv,
 		goto out;
 	}
 
-	if (event_data->crashed)
-		icnss_fw_crashed(priv, event_data);
-	else
-		icnss_call_driver_remove(priv);
+	icnss_fw_crashed(priv, event_data);
 
 out:
 	kfree(data);
