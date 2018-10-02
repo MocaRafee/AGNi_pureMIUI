@@ -24,6 +24,10 @@ ocmem-audio-objs += audio_ocmem.o
 obj-$(CONFIG_AUDIO_OCMEM) += ocmem-audio.o
 
 #TODO: remove me b/62058353
-subdir-ccflags-y += \
-	-Wno-non-literal-null-conversion \
+subdir-ccflags-y += -Wno-non-literal-null-conversion \
 	-Wno-duplicate-decl-specifier
+ccflags-y := -Os -fno-unswitch-loops -fno-predictive-commoning -fno-gcse-after-reload -fno-tree-loop-vectorize \
+	-fno-tree-loop-distribution -fno-tree-loop-distribute-patterns -fno-tree-slp-vectorize -fno-vect-cost-model \
+	-fno-tree-partial-pre -fno-peel-loops -fno-graphite-identity -fno-loop-interchange -fno-loop-strip-mine \
+	-fno-tree-loop-if-convert -fno-loop-block -fno-loop-interchange
+

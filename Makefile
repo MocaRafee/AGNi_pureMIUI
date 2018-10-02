@@ -301,10 +301,12 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
+O3_OPTS := -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-loop-vectorize -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fpeel-loops
+O3_OPTS2 := -finline-functions -fgraphite-identity -floop-interchange -floop-strip-mine -ftree-loop-if-convert -floop-block -floop-interchange
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 $(O3_OPTS) $(O3_OPTS2) -fomit-frame-pointer -std=gnu89
+HOSTCXXFLAGS = -O2 $(O3_OPTS) $(O3_OPTS2)
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -389,7 +391,7 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+KBUILD_CFLAGS   := -w -W  -Wunused-variable -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
@@ -692,12 +694,12 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,packed-not-aligned,)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os)
+KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os) $(O3_OPTS) $(O3_OPTS2)
 else
 ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2
 else
-KBUILD_CFLAGS   += -O2
+KBUILD_CFLAGS   += -O2 $(O3_OPTS) $(O3_OPTS2)
 endif
 endif
 
