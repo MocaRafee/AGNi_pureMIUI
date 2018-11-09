@@ -2310,7 +2310,7 @@ enum hdd_dot11_mode {
 #define CFG_INTERFACE_CHANGE_WAIT_NAME    "gInterfaceChangeWait"
 #define CFG_INTERFACE_CHANGE_WAIT_MIN     (10)
 #define CFG_INTERFACE_CHANGE_WAIT_MAX     (500000)
-#define CFG_INTERFACE_CHANGE_WAIT_DEFAULT (15000)
+#define CFG_INTERFACE_CHANGE_WAIT_DEFAULT (10000)
 
 /*
  * <ini>
@@ -4936,8 +4936,8 @@ enum hdd_link_speed_rpt_type {
  * These Nss parameters will have 32-bit configuration value, 2 bits are
  * allocated for each vdev.
  * Valid values are:
- * Min value – 0x5555
- * Max value – 0xAAAA
+ * Min value ? 0x5555
+ * Max value ? 0xAAAA
  * Default value will be 0xAAAA for both the parameters.
  * Value 0x5555 will configure all vdevs in 1x1 mode in 2.4G band.
  * Value 0xAAAA will configure all vdevs in 2x2 mode in 2.4G band.
@@ -4982,8 +4982,8 @@ enum hdd_link_speed_rpt_type {
  * These Nss parameters will have 32-bit configuration value, 2 bits are
  * allocated for each vdev.
  * Valid values are:
- * Min value – 0x5555
- * Max value – 0xAAAA
+ * Min value ? 0x5555
+ * Max value ? 0xAAAA
  * Default value will be 0xAAAA for both the parameters.
  * Value 0x5555 will configure all vdevs in 1x1 mode in 5 band.
  * Value 0xAAAA will configure all vdevs in 2x2 mode in 5 band.
@@ -6885,7 +6885,7 @@ enum hdd_link_speed_rpt_type {
 #define CFG_TDLS_SCAN_ENABLE                       "gEnableTDLSScan"
 #define CFG_TDLS_SCAN_ENABLE_MIN                   (0)
 #define CFG_TDLS_SCAN_ENABLE_MAX                   (1)
-#define CFG_TDLS_SCAN_ENABLE_DEFAULT               (0)
+#define CFG_TDLS_SCAN_ENABLE_DEFAULT               (1)
 
 /*
  * <ini>
@@ -11596,25 +11596,25 @@ enum hw_filter_mode {
  * Presence of <Mac_Address> and <Capability> is
  * controlled by <Info_Presence_Bit> which is mandatory
  * <Info_Presence_Bit> will give the information for
- *   OUI – bit 0 (set/reset don't effect the behaviour,
+ *   OUI ? bit 0 (set/reset don't effect the behaviour,
  *                always enabled in the code)
- *   Mac Address present – bit 1
- *   NSS – bit 2
- *   HT check – bit 3
- *   VHT check – bit 4
- *   Band info – bit 5
- *   reserved – bit 6 (should always be zero)
- *   reserved – bit 7 (should always be zero)
+ *   Mac Address present ? bit 1
+ *   NSS ? bit 2
+ *   HT check ? bit 3
+ *   VHT check ? bit 4
+ *   Band info ? bit 5
+ *   reserved ? bit 6 (should always be zero)
+ *   reserved ? bit 7 (should always be zero)
  * and should be constructed from right to left (b7b6b5b4b3b2b1b0)
  *
  * <Mac_Address_Mask> for <Mac_Address> should be constructed from left to right
  *
  * <Capability> is 1 byte long and it contains the below info
- *   NSS – 4 bits starting from LSB (b0 – b3)
- *   HT enabled – bit 4
- *   VHT enabled – bit 5
- *   2G band – bit 6
- *   5G band – bit 7
+ *   NSS ? 4 bits starting from LSB (b0 ? b3)
+ *   HT enabled ? bit 4
+ *   VHT enabled ? bit 5
+ *   2G band ? bit 6
+ *   5G band ? bit 7
  * and should be constructed from right to left (b7b6b5b4b3b2b1b0)
  * <Capability> is present if atleast one of the bit is set
  * from b2 - b6 in <Info_Presence_Bit>
@@ -13443,6 +13443,55 @@ enum hw_filter_mode {
 #define CFG_FORCE_RSNE_OVERRIDE_MIN     (0)
 #define CFG_FORCE_RSNE_OVERRIDE_MAX     (1)
 #define CFG_FORCE_RSNE_OVERRIDE_DEFAULT (0)
+/*
+ * <ini>
+ * roam_preauth_retry_count
+ *
+ * @Min: 1
+ * @Max: 10
+ * @Default: 5
+ *
+ * The maximum number of software retries for preauth or
+ * reassoc made before picking up the next candidate for
+ * connection during roaming.
+ *
+ * Related: N/A
+ *
+ * Supported Features: Roaming
+ *
+ * Usage: Internal/External
+ *
+ * </ini>
+ */
+#define CFG_ROAM_PREAUTH_RETRY_COUNT_NAME    "roam_preauth_retry_count"
+#define CFG_ROAM_PREAUTH_RETRY_COUNT_MIN     (1)
+#define CFG_ROAM_PREAUTH_RETRY_COUNT_MAX     (10)
+#define CFG_ROAM_PREAUTH_RETRY_COUNT_DEFAULT (5)
+
+/*
+ * <ini>
+ * roam_preauth_no_ack_timeout
+ *
+ * @Min: 5
+ * @Max: 50
+ * @Default: 5
+ *
+ * Time to wait (in ms) after sending an preauth or reassoc
+ * request which didn’t have an ack, before considering
+ * it as a failure and making another software retry.
+ *
+ * Related: N/A
+ *
+ * Supported Features: Roaming
+ *
+ * Usage: Internal/External
+ *
+ * </ini>
+ */
+#define CFG_ROAM_PREAUTH_NO_ACK_TIMEOUT_NAME    "roam_preauth_no_ack_timeout"
+#define CFG_ROAM_PREAUTH_NO_ACK_TIMEOUT_MIN     (5)
+#define CFG_ROAM_PREAUTH_NO_ACK_TIMEOUT_MAX     (50)
+#define CFG_ROAM_PREAUTH_NO_ACK_TIMEOUT_DEFAULT (5)
 
 /*---------------------------------------------------------------------------
    Type declarations
@@ -14315,6 +14364,8 @@ struct hdd_config {
 	bool force_rsne_override;
 	bool roam_force_rssi_trigger;
 	bool is_unit_test_framework_enabled;
+	uint32_t roam_preauth_retry_count;
+	uint32_t roam_preauth_no_ack_timeout;
 };
 
 #define VAR_OFFSET(_Struct, _Var) (offsetof(_Struct, _Var))

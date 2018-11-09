@@ -167,7 +167,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * inactivityTO - sets the timeout value for inactivity data while
  * in power save mode
  *
- * @INPUT: int1…..int255
+ * @INPUT: int1?..int255
  *
  * @OUTPUT: None
  *
@@ -227,7 +227,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * nss - Set the number of spatial streams
  *
- * @INPUT: int1…..int3
+ * @INPUT: int1?..int3
  *
  * @OUTPUT: None
  *
@@ -246,7 +246,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * ldpc - Enables or disables LDPC
  *
- * @INPUT: 0 – Disable, 1 - Enable
+ * @INPUT: 0 ? Disable, 1 - Enable
  *
  * @OUTPUT: None
  *
@@ -265,7 +265,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * tx_stbc - Enables or disables tx_stbc
  *
- * @INPUT: Int 0 – Disable, 1 - Enable
+ * @INPUT: Int 0 ? Disable, 1 - Enable
  *
  * @OUTPUT: None
  *
@@ -284,7 +284,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * rx_stbc - Set the rx_stbc parameter
  *
- * @INPUT: Int 0 – Disable, 1 - Enable
+ * @INPUT: Int 0 ? Disable, 1 - Enable
  *
  * @OUTPUT: None
  *
@@ -303,7 +303,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * shortgi  - Enables or disables a short-guard interval
  *
- * @INPUT: Int 0 – Disable, 1 - Enable
+ * @INPUT: Int 0 ? Disable, 1 - Enable
  *
  * @OUTPUT: None
  *
@@ -680,7 +680,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * <ioctl>
  * burst_dur - Enables or disables the burst feature
  *
- * @INPUT: int 1…..int 8191 in microseconds
+ * @INPUT: int 1?..int 8191 in microseconds
  *
  * @OUTPUT: None
  *
@@ -1032,7 +1032,7 @@ static const struct ccp_freq_chan_map freq_chan_map[] = {
  * wow_ito - sets the timeout value for inactivity data while
  * in power save mode during wow
  *
- * @INPUT: int1â€¦..int255
+ * @INPUT: int1�?�..int255
  *
  * @OUTPUT: None
  *
@@ -11109,7 +11109,7 @@ static int iw_set_dynamic_mcbc_filter(struct net_device *dev,
 {
 	hdd_err("\n"
 		"setMCBCFilter is obsolete. Use the following instead:\n"
-		"Configure multicast filtering via the ‘ip’ command.\n"
+		"Configure multicast filtering via the ?ip? command.\n"
 		"\tip maddr add 11:22:33:44:55:66 dev wlan0 # allow traffic to address\n"
 		"\tip maddr del 11:22:33:44:55:66 dev wlan0 # undo allow\n"
 		"Configure broadcast filtering via ini item, 'g_enable_non_arp_bc_hw_filter.'\n"
