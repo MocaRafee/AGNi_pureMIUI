@@ -744,6 +744,10 @@ noinline int slow_avc_audit(u32 ssid, u32 tsid, u16 tclass,
 	struct common_audit_data stack_data;
 	struct selinux_audit_data sad;
 
+	/* Only log permissive=1 messages for SECURITY_SELINUX_DEVELOP */
+	if (denied && !result)
+		return 0;
+
 	if (!a) {
 		a = &stack_data;
 		a->type = LSM_AUDIT_DATA_NONE;
@@ -765,7 +769,11 @@ noinline int slow_avc_audit(u32 ssid, u32 tsid, u16 tclass,
 	sad.ssid = ssid;
 	sad.tsid = tsid;
 	sad.audited = audited;
+#ifdef CONFIG_SECURITY_SELINUX_FORCE_PERMISSIVE
+	sad.denied = 0;
+#else
 	sad.denied = denied;
+#endif
 	sad.result = result;
 
 	a->selinux_audit_data = &sad;
@@ -981,9 +989,10 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
 				u8 driver, u8 xperm, unsigned flags,
 				struct av_decision *avd)
 {
+#ifndef CONFIG_SECURITY_SELINUX_FORCE_PERMISSIVE
 	if (flags & AVC_STRICT)
 		return -EACCES;
-
+#endif
 	if (selinux_enforcing && !(avd->flags & AVD_FLAGS_PERMISSIVE))
 		return -EACCES;
 
