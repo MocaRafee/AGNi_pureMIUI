@@ -234,7 +234,7 @@ static ssize_t ramoops_pstore_read(u64 *id, enum pstore_type_id *type,
 	/* ECC correction notice */
 	ecc_notice_size = persistent_ram_ecc_string(prz, NULL, 0);
 
-	*buf = kmalloc(size + ecc_notice_size + 1, GFP_KERNEL);
+	*buf = vmalloc(size + ecc_notice_size + 1);
 	if (*buf == NULL)
 		return -ENOMEM;
 
@@ -425,7 +425,7 @@ static int ramoops_init_przs(struct device *dev, struct ramoops_context *cxt,
 	if (!cxt->max_dump_cnt)
 		return -ENOMEM;
 
-	cxt->przs = kzalloc(sizeof(*cxt->przs) * cxt->max_dump_cnt,
+	cxt->przs = kcalloc(cxt->max_dump_cnt, sizeof(*cxt->przs),
 			     GFP_KERNEL);
 	if (!cxt->przs) {
 		dev_err(dev, "failed to initialize a prz array for dumps\n");
@@ -509,11 +509,6 @@ static int ramoops_parse_dt_size(struct platform_device *pdev,
 		dev_err(&pdev->dev, "failed to parse property %s: %d\n",
 				propname, ret);
 		return ret;
-	}
-
-	if (val64 > ULONG_MAX) {
-		dev_err(&pdev->dev, "invalid %s %llu\n", propname, val64);
-		return -EOVERFLOW;
 	}
 
 	*val = val64;
