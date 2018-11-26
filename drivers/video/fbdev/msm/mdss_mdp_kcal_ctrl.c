@@ -13,6 +13,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * KCAL SCREEN MODES v1.2 by psndna88@xda (12-January-2018)
+ *
+ * all modes use individual parameters independent from tunables values
+ *
+ * echo "x" > /sys/devices/platform/kcal_ctrl.0/kcal_mode
+ *
+ * 0: User Mode (use the values set for the individual kcal tunables)
+ * 1: Standard Mode
+ * 2: Night Mode (uses backlight dimmer algorithm)
+ * 3: Warm Mode
+ * 4: Vivid Mode
+ * 5: Reading Mode
+ * 6: vivid-2 mode (reduce contrast from Vivid mode)
  */
 
 #include <linux/kernel.h>
@@ -32,6 +46,7 @@
 #endif
 
 #include "mdss_mdp.h"
+#include "mdss_dsi.h"
 
 #define DEF_PCC 0x100
 #define DEF_PA 0xff
@@ -57,7 +72,136 @@ struct kcal_lut_data {
 	int cont;
 };
 
+int kcal_custom_mode = 4; //set Vivid mode Default
+int prev_kcal_r, prev_kcal_g, prev_kcal_b;
+int prev_kcal_min, prev_kcal_sat, prev_kcal_val, prev_kcal_cont;
+int user_kcal_r, user_kcal_g, user_kcal_b;
+int user_kcal_min, user_kcal_sat, user_kcal_val, user_kcal_cont;
+int mode_kcal_r, mode_kcal_g, mode_kcal_b;
+int mode_kcal_min, mode_kcal_sat, mode_kcal_val, mode_kcal_cont;
+bool prev_backlight_dimmer, mode_backlight_dimmer;
+
 struct mdss_mdp_ctl *fb0_ctl = 0;
+
+static void kcal_mode_save_prev(struct device *dev) {
+
+    struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
+
+    prev_kcal_r = lut_data->red;
+    prev_kcal_g = lut_data->green;
+    prev_kcal_b = lut_data->blue;
+    prev_kcal_min = lut_data->minimum;
+    prev_kcal_sat = lut_data->sat;
+    prev_kcal_val = lut_data->val;
+    prev_kcal_cont = lut_data->cont;
+    prev_backlight_dimmer = backlight_dimmer;
+
+}
+
+static void kcal_mode_save_mode(struct device *dev) {
+
+    struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
+
+    lut_data->red = mode_kcal_r;
+    lut_data->green = mode_kcal_g;
+    lut_data->blue = mode_kcal_b;
+    lut_data->minimum = mode_kcal_min;
+    lut_data->sat = mode_kcal_sat;
+    lut_data->val = mode_kcal_val;
+    lut_data->cont = mode_kcal_cont;
+    backlight_dimmer = mode_backlight_dimmer;
+
+}
+
+static void kcal_apply_mode(struct device *dev) {
+
+    kcal_mode_save_prev(dev);
+
+	switch (kcal_custom_mode) {
+	case 0:
+    	/* USER MODE */
+		mode_kcal_r = user_kcal_r;
+        mode_kcal_g = user_kcal_g;
+        mode_kcal_b = user_kcal_b;
+        mode_kcal_min = user_kcal_min;
+        mode_kcal_sat = user_kcal_sat;
+        mode_kcal_val = user_kcal_val;
+        mode_kcal_cont = user_kcal_cont;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+		break;
+	case 1:
+        /* STANDARD MODE */
+        mode_kcal_r = 256;
+        mode_kcal_g = 256;
+        mode_kcal_b = 256;
+        mode_kcal_min = 35;
+        mode_kcal_sat = 255;
+        mode_kcal_val = 255;
+        mode_kcal_cont = 255;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+		break;
+	case 2:
+        /* NIGHT MODE */
+        mode_kcal_r = 228;
+        mode_kcal_g = 168;
+        mode_kcal_b = 120;
+        mode_kcal_min = 0;
+        mode_kcal_sat = 265;
+        mode_kcal_val = 255;
+        mode_kcal_cont = 255;
+        mode_backlight_dimmer = true;
+		break;
+	case 3:
+        /* WARM MODE */
+        mode_kcal_r = 256;
+        mode_kcal_g = 240;
+        mode_kcal_b = 208;
+        mode_kcal_min = 35;
+        mode_kcal_sat = 275;
+        mode_kcal_val = 251;
+        mode_kcal_cont = 258;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+		break;
+	case 4:
+        /* VIVID MODE */
+        mode_kcal_r = 256;
+        mode_kcal_g = 256;
+        mode_kcal_b = 256;
+        mode_kcal_min = 35;
+        mode_kcal_sat = 270;
+        mode_kcal_val = 257;
+        mode_kcal_cont = 265;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+		break;
+	case 5:
+        /* READING MODE */
+        mode_kcal_r = 256;
+        mode_kcal_g = 256;
+        mode_kcal_b = 180;
+        mode_kcal_min = 35;
+        mode_kcal_sat = 255;
+        mode_kcal_val = 255;
+        mode_kcal_cont = 255;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+		break;
+	case 6:
+        /* VIVID 2 MODE */
+        mode_kcal_r = 256;
+        mode_kcal_g = 256;
+        mode_kcal_b = 256;
+        mode_kcal_min = 35;
+        mode_kcal_sat = 265;
+        mode_kcal_val = 257;
+        mode_kcal_cont = 255;
+        mode_backlight_dimmer = prev_backlight_dimmer;
+ 		break;
+	default:
+		break;
+    }
+
+    kcal_mode_save_mode(dev);
+
+}
 
 static int mdss_mdp_kcal_store_fb0_ctl(void)
 {
@@ -104,6 +248,27 @@ static bool mdss_mdp_kcal_is_panel_on(void)
 	}
 
 	return false;
+}
+
+static int mdss_mdp_kcal_display_commit(void)
+{
+	int i;
+	int ret = 0;
+	struct mdss_mdp_ctl *ctl;
+	struct mdss_data_type *mdata = mdss_mdp_get_mdata();
+
+	for (i = 0; i < mdata->nctl; i++) {
+		ctl = mdata->ctl_off + i;
+		/* pp setup requires mfd */
+		if (mdss_mdp_ctl_is_power_on(ctl) && ctl->mfd &&
+				ctl->mfd->index == 0) {
+			ret = mdss_mdp_pp_setup(ctl);
+			if (ret)
+				pr_err("%s: setup failed: %d\n", __func__, ret);
+		}
+	}
+
+	return ret;
 }
 
 static void mdss_mdp_kcal_update_pcc(struct kcal_lut_data *lut_data)
@@ -253,15 +418,19 @@ static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 		(kcal_g < 0 || kcal_g > 256) || (kcal_b < 0 || kcal_b > 256))
 		return -EINVAL;
 
+	user_kcal_r = kcal_r;
+	user_kcal_g = kcal_g;
+	user_kcal_b = kcal_b;
 	lut_data->red = kcal_r;
 	lut_data->green = kcal_g;
 	lut_data->blue = kcal_b;
 
 	mdss_mdp_kcal_check_pcc(lut_data);
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pcc(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -289,11 +458,13 @@ static ssize_t kcal_min_store(struct device *dev,
 	if ((r) || (kcal_min < 0 || kcal_min > 256))
 		return -EINVAL;
 
+	user_kcal_min = kcal_min;
 	lut_data->minimum = kcal_min;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pcc(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -351,9 +522,10 @@ static ssize_t kcal_invert_store(struct device *dev,
 
 	lut_data->invert = kcal_invert;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pcc(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -367,6 +539,37 @@ static ssize_t kcal_invert_show(struct device *dev,
 	return scnprintf(buf, PAGE_SIZE, "%d\n", lut_data->invert);
 }
 
+static ssize_t kcal_mode_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	int kcal_modes, r;
+    struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
+
+	r = kstrtoint(buf, 10, &kcal_modes);
+	if ((r) || (kcal_modes < 0) || (kcal_modes > 6) || (kcal_custom_mode == kcal_modes))
+		return -EINVAL;
+
+	kcal_custom_mode = kcal_modes;
+
+    kcal_apply_mode(dev);
+
+	if (mdss_mdp_kcal_is_panel_on()) {
+		mdss_mdp_kcal_update_pcc(lut_data);
+		mdss_mdp_kcal_update_pa(lut_data);
+		mdss_mdp_kcal_display_commit();
+	} else
+		lut_data->queue_changes = true;
+
+	return count;
+}
+
+static ssize_t kcal_mode_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n", kcal_custom_mode);
+}
+
 static ssize_t kcal_sat_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
@@ -377,11 +580,13 @@ static ssize_t kcal_sat_store(struct device *dev,
 	if ((r) || ((kcal_sat < 224 || kcal_sat > 383) && kcal_sat != 128))
 		return -EINVAL;
 
+	user_kcal_sat = kcal_sat;
 	lut_data->sat = kcal_sat;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pa(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -407,9 +612,10 @@ static ssize_t kcal_hue_store(struct device *dev,
 
 	lut_data->hue = kcal_hue;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pa(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -433,11 +639,13 @@ static ssize_t kcal_val_store(struct device *dev,
 	if ((r) || (kcal_val < 128 || kcal_val > 383))
 		return -EINVAL;
 
+	user_kcal_val = kcal_val;
 	lut_data->val = kcal_val;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pa(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -461,11 +669,13 @@ static ssize_t kcal_cont_store(struct device *dev,
 	if ((r) || (kcal_cont < 128 || kcal_cont > 383))
 		return -EINVAL;
 
+	user_kcal_cont = kcal_cont;
 	lut_data->cont = kcal_cont;
 
-	if (mdss_mdp_kcal_is_panel_on())
+	if (mdss_mdp_kcal_is_panel_on()) {
 		mdss_mdp_kcal_update_pa(lut_data);
-	else
+		mdss_mdp_kcal_display_commit();
+	} else
 		lut_data->queue_changes = true;
 
 	return count;
@@ -485,6 +695,7 @@ static DEVICE_ATTR(kcal_enable, S_IWUSR | S_IRUGO, kcal_enable_show,
 	kcal_enable_store);
 static DEVICE_ATTR(kcal_invert, S_IWUSR | S_IRUGO, kcal_invert_show,
 	kcal_invert_store);
+static DEVICE_ATTR(kcal_mode, S_IWUSR | S_IRUGO, kcal_mode_show, kcal_mode_store);
 static DEVICE_ATTR(kcal_sat, S_IWUSR | S_IRUGO, kcal_sat_show, kcal_sat_store);
 static DEVICE_ATTR(kcal_hue, S_IWUSR | S_IRUGO, kcal_hue_show, kcal_hue_store);
 static DEVICE_ATTR(kcal_val, S_IWUSR | S_IRUGO, kcal_val_show, kcal_val_store);
@@ -552,6 +763,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 
 	mdss_mdp_kcal_update_pcc(lut_data);
 	mdss_mdp_kcal_update_pa(lut_data);
+	mdss_mdp_kcal_display_commit();
 
 #if defined(CONFIG_MMI_PANEL_NOTIFICATIONS)
 	lut_data->panel_nb.display_on = mdss_mdp_kcal_update_queue;
@@ -575,6 +787,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_min);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_enable);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_invert);
+	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_mode);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_sat);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_hue);
 	ret |= device_create_file(&pdev->dev, &dev_attr_kcal_val);
@@ -606,6 +819,7 @@ static int kcal_ctrl_remove(struct platform_device *pdev)
 	device_remove_file(&pdev->dev, &dev_attr_kcal_min);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_enable);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_invert);
+	device_remove_file(&pdev->dev, &dev_attr_kcal_mode);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_sat);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_hue);
 	device_remove_file(&pdev->dev, &dev_attr_kcal_val);
