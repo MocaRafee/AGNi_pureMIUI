@@ -992,5 +992,8 @@ static inline enum dsi_physical_lane_id mdss_dsi_logical_to_physical_lane(
 
 /* KCAL SCREEN MODES by psndna88@xda */
 extern bool backlight_dimmer;
+extern int kcal_custom_mode;
+extern struct kcal_lut_data;
+extern void mdss_kcal_panel_on(void);
 
 #endif /* MDSS_DSI_H */

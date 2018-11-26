@@ -706,13 +706,24 @@ static int mdss_mdp_kcal_update_queue(struct device *dev)
 {
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
-	if (lut_data->queue_changes) {
+//	if (lut_data->queue_changes) {
 		mdss_mdp_kcal_update_pcc(lut_data);
 		mdss_mdp_kcal_update_pa(lut_data);
+		mdss_mdp_kcal_display_commit();
 		lut_data->queue_changes = false;
-	}
+//	}
 
 	return 0;
+}
+
+void mdss_kcal_panel_on(void)
+{
+	struct device *dev;
+	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
+
+	mdss_mdp_kcal_update_queue(&lut_data->dev);
+
+	return;
 }
 
 #if defined(CONFIG_FB) && !defined(CONFIG_MMI_PANEL_NOTIFICATIONS)
