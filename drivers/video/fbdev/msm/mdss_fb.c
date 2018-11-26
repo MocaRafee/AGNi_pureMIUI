@@ -51,6 +51,7 @@
 #include <linux/wakelock.h>
 #include <sync.h>
 #include <sw_sync.h>
+#include <linux/display_state.h>
 
 #include "mdss_dsi.h"
 #include "mdss_fb.h"
@@ -147,6 +148,7 @@ int ce_state, cabc_state, srgb_state, gamma_state;
 bool ce_resume, cabc_resume, srgb_resume, gamma_resume;
 bool first_set_bl = false;
 int first_ce_state, first_cabc_state, first_srgb_state, first_gamma_state;
+static void kcal_resume(struct work_struct *kcal_work);
 
 static inline void __user *to_user_ptr(uint64_t address)
 {
@@ -1149,6 +1151,15 @@ static ssize_t mdss_fb_set_ce(struct device *dev, struct device_attribute *attr,
 
 }
 
+static void kcal_resume(struct work_struct *kcal_work)
+{
+	if (is_display_on()) {
+		mdss_kcal_panel_on();
+		printk("tsx ##### kcal updated ###\n");
+	}
+}
+DECLARE_DELAYED_WORK(kcal_work, kcal_resume);
+
 static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *attr, const char *buf, size_t len)
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
@@ -1227,6 +1238,9 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 
 	}
 	printk("guorui ##### cabc over ###\n");
+// BUG: freezes
+//	if (!delayed_work_pending(&kcal_work))
+//		schedule_delayed_work(&kcal_work, msecs_to_jiffies(3000));
 	return len;
 
 }
