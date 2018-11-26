@@ -990,4 +990,7 @@ static inline enum dsi_physical_lane_id mdss_dsi_logical_to_physical_lane(
 	return i;
 }
 
+/* KCAL SCREEN MODES by psndna88@xda */
+extern bool backlight_dimmer;
+
 #endif /* MDSS_DSI_H */
