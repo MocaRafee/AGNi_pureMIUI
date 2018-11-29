@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -677,7 +677,7 @@ static int sendcmd(struct adreno_device *adreno_dev,
 	 * then set up the timer.  If this misses, then preemption is indeed a
 	 * thing and the timer will be set up in due time
 	 */
-	if (!adreno_in_preempt_state(adreno_dev, ADRENO_PREEMPT_NONE)) {
+	if (adreno_in_preempt_state(adreno_dev, ADRENO_PREEMPT_NONE)) {
 		if (drawqueue_is_current(dispatch_q))
 			mod_timer(&dispatcher->timer, dispatch_q->expires);
 	}
@@ -1176,6 +1176,12 @@ static inline int _verify_cmdobj(struct kgsl_device_private *dev_priv,
 					&ADRENO_CONTEXT(context)->base, ib)
 					== false)
 					return -EINVAL;
+			/*
+			 * Clear the wake on touch bit to indicate an IB has
+			 * been submitted since the last time we set it.
+			 * But only clear it when we have rendering commands.
+			 */
+			device->flags &= ~KGSL_FLAG_WAKE_ON_TOUCH;
 		}
 
 		/* A3XX does not have support for drawobj profiling */
@@ -1826,7 +1832,8 @@ static void process_cmdobj_fault(struct kgsl_device *device,
 	 * because we won't see this cmdobj again
 	 */
 
-	if (fault & ADRENO_TIMEOUT_FAULT)
+	if ((fault & ADRENO_TIMEOUT_FAULT) ||
+				(fault & ADRENO_CTX_DETATCH_TIMEOUT_FAULT))
 		bitmap_zero(&cmdobj->fault_policy, BITS_PER_LONG);
 
 	/*
@@ -2848,13 +2855,6 @@ int adreno_dispatcher_idle(struct adreno_device *adreno_dev)
 	adreno_get_gpu_halt(adreno_dev);
 
 	mutex_unlock(&device->mutex);
-
-	/*
-	 * Flush the worker to make sure all executing
-	 * or pending dispatcher works on worker are
-	 * finished
-	 */
-	flush_kthread_worker(&kgsl_driver.worker);
 
 	ret = wait_for_completion_timeout(&dispatcher->idle_gate,
 			msecs_to_jiffies(ADRENO_IDLE_TIMEOUT));

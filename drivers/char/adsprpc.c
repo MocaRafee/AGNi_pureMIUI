@@ -1188,7 +1188,10 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 		if (err)
 			goto bail;
 	}
-	if (ctx->buf->virt && metalen <= copylen)
+	VERIFY(err, ctx->buf->virt != NULL);
+	if (err)
+		goto bail;
+	if (metalen <= copylen)
 		memset(ctx->buf->virt, 0, metalen);
 
 	/* copy metadata */
@@ -1250,7 +1253,7 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 	/* copy non ion buffers */
 	PERF(ctx->fl->profile, ctx->fl->perf.copy,
 	rlen = copylen - metalen;
-	for (oix = 0; oix < inbufs + outbufs; ++oix) {
+	for (oix = 0; rpra && oix < inbufs + outbufs; ++oix) {
 		int i = ctx->overps[oix]->raix;
 		struct fastrpc_mmap *map = ctx->maps[i];
 		size_t mlen;
@@ -1301,7 +1304,7 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 		if (map && (map->attr & FASTRPC_ATTR_COHERENT))
 			continue;
 
-		if (rpra[i].buf.len && ctx->overps[oix]->mstart) {
+		if (rpra && rpra[i].buf.len && ctx->overps[oix]->mstart) {
 			if (map && map->handle)
 				msm_ion_do_cache_op(ctx->fl->apps->client,
 					map->handle,
@@ -1317,7 +1320,7 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 	PERF_END);
 
 	inh = inbufs + outbufs;
-	for (i = 0; i < REMOTE_SCALARS_INHANDLES(sc); i++) {
+	for (i = 0; rpra && i < REMOTE_SCALARS_INHANDLES(sc); i++) {
 		rpra[inh + i].buf.pv = ptr_to_uint64(ctx->lpra[inh + i].buf.pv);
 		rpra[inh + i].buf.len = ctx->lpra[inh + i].buf.len;
 		rpra[inh + i].h = ctx->lpra[inh + i].h;
@@ -2308,6 +2311,8 @@ static int fastrpc_file_free(struct fastrpc_file *fl)
 		return 0;
 	cid = fl->cid;
 
+	(void)fastrpc_release_current_dsp_process(fl);
+
 	spin_lock(&fl->apps->hlock);
 	hlist_del_init(&fl->hn);
 	spin_unlock(&fl->apps->hlock);
@@ -2315,7 +2320,7 @@ static int fastrpc_file_free(struct fastrpc_file *fl)
 	if (!fl->sctx) {
 		goto bail;
 	}
-	(void)fastrpc_release_current_dsp_process(fl);
+
 	spin_lock(&fl->hlock);
 	fl->file_close = 1;
 	spin_unlock(&fl->hlock);
@@ -2761,6 +2766,28 @@ static long fastrpc_device_ioctl(struct file *file, unsigned int ioctl_num,
 			goto bail;
 		break;
 	case FASTRPC_IOCTL_MUNMAP:
+		K_COPY_FROM_USER(err, 0, &p.munmap, param,
+						sizeof(p.munmap));
+		if (err)
+			goto bail;
+		VERIFY(err, 0 == (err = fastrpc_internal_munmap(fl,
+							&p.munmap)));
+		if (err)
+			goto bail;
+		break;
+	case FASTRPC_IOCTL_MMAP_64:
+		K_COPY_FROM_USER(err, 0, &p.mmap, param,
+						sizeof(p.mmap));
+		if (err)
+			goto bail;
+		VERIFY(err, 0 == (err = fastrpc_internal_mmap(fl, &p.mmap)));
+		if (err)
+			goto bail;
+		K_COPY_TO_USER(err, 0, param, &p.mmap, sizeof(p.mmap));
+		if (err)
+			goto bail;
+		break;
+	case FASTRPC_IOCTL_MUNMAP_64:
 		K_COPY_FROM_USER(err, 0, &p.munmap, param,
 						sizeof(p.munmap));
 		if (err)
