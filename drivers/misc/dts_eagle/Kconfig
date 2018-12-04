@@ -1,6 +1,6 @@
 config DTS_EAGLE
 	bool "DTS Eagle driver"
-	depends on SND_SOC_QDSP6V2
+	depends on CONFIG_SND_SOC_QDSP6V2
 	select SND_HWDEP
 	default n
 	help
