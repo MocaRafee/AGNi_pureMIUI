@@ -254,7 +254,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # "make" in the configured kernel build directory always uses that.
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
-ARCH		?= $(SUBARCH)
+ARCH		:= arm64
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 
 # Architecture as present in compile.h
@@ -393,7 +393,22 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -std=gnu89 $(call cc-option,-fno-PIE)
+		   -std=gnu89 $(call cc-option,-fno-PIE) \
+		   -march=armv8-a+crc+crypto -mtune=cortex-a73.cortex-a53 \
+		   -Wno-deprecated-declarations \
+		   -Wno-misleading-indentation \
+		   -Wno-shift-overflow \
+		   -Wno-bool-compare \
+		   -Wno-memset-transposed-args \
+		   -Wno-discarded-array-qualifiers \
+		   -Wno-tautological-compare -Wno-array-bounds \
+		   -Wno-duplicate-decl-specifier \
+		   -Wno-memset-elt-size -Wno-switch-unreachable \
+		   -Wno-format-truncation -Wno-format-overflow \
+		   -Wno-int-in-bool-context -Wno-bool-operation \
+		   -Wno-nonnull -Wno-stringop-overflow -Wno-attributes \
+		   -Wno-discarded-qualifiers \
+		   -Wno-parentheses
 
 ifeq ($(TARGET_BOARD_TYPE),auto)
 KBUILD_CFLAGS    += -DCONFIG_PLATFORM_AUTO
@@ -642,12 +657,40 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
+KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
 
+# Needed to unbreak GCC 7.x and above
+KBUILD_CFLAGS   += $(call cc-option,-fno-store-merging,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-code-hoisting,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-fp-int-builtin-inexact,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-ipa-bit-cp,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-ipa-icf-variables,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-ipa-vrp,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-printf-return-value,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-shrink-wrap-separate,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-peel-loops,)
+KBUILD_CFLAGS   += $(call cc-option,-fno-split-loops,)
+# Disable all GCC 6.x+ buggy detection warnings
+KBUILD_CFLAGS   += $(call cc-disable-warning,misleading-indentation,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,incompatible-pointer-types,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,unused-const-variable,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,memset-elt-size,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,duplicate-decl-specifier,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,shift-overflow,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,discarded-array-qualifiers,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,switch-unreachable,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,int-in-bool-context,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,array-bounds,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,bool-operation,)
+KBUILD_CFLAGS   += $(call cc-disable-warning,format-overflow,)
+KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
+KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CFLAGS	+= $(call cc-disable-warning,packed-not-aligned,)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os)
 else
@@ -738,6 +781,8 @@ endif
 
 ifeq ($(cc-name),clang)
 KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option,)
+KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
@@ -1250,7 +1295,7 @@ CLEAN_DIRS  += $(MODVERDIR)
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config usr/include include/generated          \
-		  arch/*/include/generated .tmp_objdiff
+		  arch/*/include/generated .tmp_objdiff net/wireguard/*
 MRPROPER_FILES += .config .config.old .version .old_version \
 		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  signing_key.pem signing_key.priv signing_key.x509	\
