@@ -49,7 +49,6 @@ bool is_display_on()
 {
 	return display_on;
 }
-//static void kcal_resume(struct work_struct *kcal_work);
 
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 {
@@ -994,15 +993,6 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 	}
 }
 
-/* static void kcal_resume(struct work_struct *kcal_work)
-{
-	if (is_display_on()) {
-		mdss_kcal_panel_on();
-		printk("tsx ##### kcal updated ###\n");
-	}
-}
-DECLARE_DELAYED_WORK(kcal_work, kcal_resume); */
-
 extern int ce_state;
 extern int cabc_state;
 extern int srgb_state;
@@ -1069,9 +1059,6 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 
 	/* Ensure low persistence mode is set as before */
 	mdss_dsi_panel_apply_display_setting(pdata, pinfo->persist_mode);
-
-//	if (!delayed_work_pending(&kcal_work))
-//		schedule_delayed_work(&kcal_work, msecs_to_jiffies(3000));
 
 end:
 	pr_err("%s:-\n", __func__);
