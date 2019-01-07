@@ -2860,7 +2860,7 @@ enum hdd_dot11_mode {
  *
  * @min: 0x0
  * @max: 0xffffffff
- * @defalut: 0xc8a
+ * @default: 0xc83
  *
  * |31  12|  11  |  10  |9    8|7    6|5    4|3    2|  1  |  0  |
  * +------+------+------+------+------+------+------+-----+-----+
@@ -2893,7 +2893,7 @@ enum hdd_dot11_mode {
 #define CFG_LATENCY_FLAGS_ULTRALOW_NAME    "wlm_latency_flags_ultralow"
 #define CFG_LATENCY_FLAGS_ULTRALOW_MIN     (0x0)
 #define CFG_LATENCY_FLAGS_ULTRALOW_MAX     (0xffffffff)
-#define CFG_LATENCY_FLAGS_ULTRALOW_DEFAULT (0xc8a)
+#define CFG_LATENCY_FLAGS_ULTRALOW_DEFAULT (0xc83)
 
 #define CFG_INTF0_MAC_ADDR_NAME                  "Intf0MacAddress"
 #define CFG_INTF0_MAC_ADDR_MIN                   "000000000000"
@@ -10746,7 +10746,7 @@ enum restart_beaconing_on_ch_avoid_rule {
 
 /* Hold wakelock for unicast RX packets for the specified duration  */
 #define CFG_RX_WAKELOCK_TIMEOUT_NAME     "rx_wakelock_timeout"
-#define CFG_RX_WAKELOCK_TIMEOUT_DEFAULT  (7)
+#define CFG_RX_WAKELOCK_TIMEOUT_DEFAULT  (50)
 #define CFG_RX_WAKELOCK_TIMEOUT_MIN      (0)
 #define CFG_RX_WAKELOCK_TIMEOUT_MAX      (100)
 
@@ -12466,6 +12466,12 @@ enum hw_filter_mode {
  *   Info Mask : 35 - Check for NSS, VHT Caps and Band
  *   Capabilities: 6C - (NSS == 3 or 4) && VHT Caps Preset && Band == 2G
  *
+ * OUI 5 : 001018
+ *   OUI data Len : 06
+ *   OUI Data : 02FF009C0000
+ *   OUI data Mask: BC - 10111100
+ *   Info Mask : 25 - Check for NSS and Band
+ *   Capabilities: 48 - NSS == 4 && Band == 2G
  * This ini is used to specify the AP OUIs with which only 1x1 connection
  * is allowed.
  *
@@ -12478,7 +12484,7 @@ enum hw_filter_mode {
  * </ini>
  */
 #define CFG_ACTION_OUI_CONNECT_1X1_NAME    "gActionOUIConnect1x1"
-#define CFG_ACTION_OUI_CONNECT_1X1_DEFAULT "000C43 00 25 42 001018 06 02FFF02C0000 BC 25 42 001018 06 02FF040C0000 BC 25 42 00037F 00 35 6C"
+#define CFG_ACTION_OUI_CONNECT_1X1_DEFAULT "000C43 00 25 42 001018 06 02FFF02C0000 BC 25 42 001018 06 02FF040C0000 BC 25 42 00037F 00 35 6C 001018 06 02FF009C0000 BC 25 48"
 
 /*
  * <ini>

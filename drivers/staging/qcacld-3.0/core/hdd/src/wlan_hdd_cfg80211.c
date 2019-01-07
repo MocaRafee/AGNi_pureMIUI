@@ -1725,6 +1725,13 @@ static int __wlan_hdd_cfg80211_do_acs(struct wiphy *wiphy,
 	else
 		sap_config->acs_cfg.ch_width = CH_WIDTH_20MHZ;
 
+	/*
+	 * Update dfs master capability info in acs cfg, used to exclude
+	 * the dfs channels from acs scan list, in API sap_get_channel_list
+	 */
+	sap_config->acs_cfg.dfs_master_enable =
+				hdd_ctx->config->enableDFSMasterCap;
+
 	/* hw_mode = a/b/g: QCA_WLAN_VENDOR_ATTR_ACS_CH_LIST and
 	 * QCA_WLAN_VENDOR_ATTR_ACS_FREQ_LIST attrs are present, and
 	 * QCA_WLAN_VENDOR_ATTR_ACS_CH_LIST is used for obtaining the
@@ -9270,6 +9277,8 @@ static int hdd_validate_avoid_freq_chanlist(hdd_context_t *hdd_ctx,
 		for (ch_idx = channel_list->avoidFreqRange[range_idx].startFreq;
 		     ch_idx <= channel_list->avoidFreqRange[range_idx].endFreq;
 		     ch_idx++) {
+			 if (INVALID_CHANNEL == cds_get_channel_enum(ch_idx))
+				continue;
 			for (unsafe_channel_index = 0;
 			     unsafe_channel_index < unsafe_channel_count;
 			     unsafe_channel_index++) {

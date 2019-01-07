@@ -1482,7 +1482,7 @@ populate_dot11f_qos_caps_station(tpAniSirGlobal pMac, tpPESession pe_session,
 	if (wlan_cfg_get_int(pMac, WNI_CFG_MAX_SP_LENGTH, &val) != eSIR_SUCCESS)
 		pe_err("could not retrieve Max SP Length");
 
-	pDot11f->more_data_ack = 0;
+		pDot11f->more_data_ack = 0;
 	pDot11f->max_sp_length = (uint8_t) val;
 	pDot11f->qack = 0;
 
@@ -1984,7 +1984,7 @@ void populate_dot11f_wmm_info_station_per_session(tpAniSirGlobal pMac,
 	if (wlan_cfg_get_int(pMac, WNI_CFG_MAX_SP_LENGTH, &val) != eSIR_SUCCESS)
 		pe_err("could not retrieve Max SP Length");
 
-	pInfo->max_sp_length = (uint8_t) val;
+		pInfo->max_sp_length = (uint8_t) val;
 	pInfo->present = 1;
 }
 
@@ -5944,9 +5944,9 @@ tSirRetStatus populate_dot11f_wfatpc(tpAniSirGlobal pMac,
 tSirRetStatus populate_dot11f_beacon_report(tpAniSirGlobal pMac,
 				tDot11fIEMeasurementReport *pDot11f,
 				tSirMacBeaconReport *pBeaconReport,
-				struct rrm_beacon_report_last_beacon_params
-				*last_beacon_report_params)
+				bool is_last_frame)
 {
+	tDot11fIEbeacon_report_frm_body_fragment_id *frm_body_frag_id;
 
 	pDot11f->report.Beacon.regClass = pBeaconReport->regClass;
 	pDot11f->report.Beacon.channel = pBeaconReport->channel;
@@ -5973,35 +5973,29 @@ tSirRetStatus populate_dot11f_beacon_report(tpAniSirGlobal pMac,
 			pBeaconReport->numIes;
 	}
 
-	if (last_beacon_report_params &&
-	    last_beacon_report_params->last_beacon_ind) {
-		pe_debug("Including Last Beacon Report in RRM Frame, report_id %d, frag_id %d",
-			last_beacon_report_params->report_id,
-			last_beacon_report_params->frag_id);
-		pDot11f->report.Beacon.beacon_report_frm_body_fragment_id.
-			present = 1;
-		pDot11f->report.Beacon.beacon_report_frm_body_fragment_id.
-			beacon_report_id = last_beacon_report_params->report_id;
-		pDot11f->report.Beacon.beacon_report_frm_body_fragment_id.
-			fragment_id_number = last_beacon_report_params->frag_id;
+	if (pBeaconReport->last_bcn_report_ind_support) {
+		pe_debug("Including Last Beacon Report in RRM Frame");
+		frm_body_frag_id = &pDot11f->report.Beacon.
+			beacon_report_frm_body_fragment_id;
 
-		pDot11f->report.Beacon.last_beacon_report_indication.present = 1;
+		frm_body_frag_id->present = 1;
+		frm_body_frag_id->beacon_report_id =
+			pBeaconReport->frame_body_frag_id.id;
+		frm_body_frag_id->fragment_id_number =
+			pBeaconReport->frame_body_frag_id.frag_id;
+		frm_body_frag_id->more_fragments =
+			pBeaconReport->frame_body_frag_id.more_frags;
 
-		if (last_beacon_report_params->frag_id ==
-		    (last_beacon_report_params->num_frags - 1)) {
-			pDot11f->report.Beacon.
-				beacon_report_frm_body_fragment_id.
-				more_fragments = 0;
-			pDot11f->report.Beacon.last_beacon_report_indication.
-				last_fragment = 1;
-			pe_debug("Last Fragment");
-		} else {
-			pDot11f->report.Beacon.
-				beacon_report_frm_body_fragment_id.
-				more_fragments = 1;
-			pDot11f->report.Beacon.last_beacon_report_indication.
-				last_fragment = 0;
-		}
+		pDot11f->report.Beacon.last_beacon_report_indication.present =
+			1;
+
+		pDot11f->report.Beacon.last_beacon_report_indication.
+			last_fragment = is_last_frame;
+		pe_debug("id %d frag_id %d more_frags %d is_last_frame %d",
+			 frm_body_frag_id->beacon_report_id,
+			 frm_body_frag_id->fragment_id_number,
+			 frm_body_frag_id->more_fragments,
+			 is_last_frame);
 	}
 	return eSIR_SUCCESS;
 
