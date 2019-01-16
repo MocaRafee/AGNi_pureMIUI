@@ -27,6 +27,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 		return -EPERM;
 	} else {
 		pr_debug("gf:reset_gpio:%d\n", gf_dev->reset_gpio);
+#if 1
 		rc = gpio_request(gf_dev->reset_gpio, "goodix_reset");
 		if (rc) {
 			dev_err(&gf_dev->spi->dev, "Failed to request RESET GPIO. rc = %d\n", rc);
@@ -34,6 +35,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 		}
 		gpio_direction_output(gf_dev->reset_gpio, 1);
 		gpio_free(gf_dev->reset_gpio);
+#endif
 	}
 	/*get irq gpio resourece*/
 	gf_dev->irq_gpio = of_get_named_gpio(gf_dev->spi->dev.of_node, "goodix,gpio_irq", 0);
@@ -42,6 +44,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 		return -EPERM;
 	} else {
 		pr_info("gf:irq_gpio:%d\n", gf_dev->irq_gpio);
+#if 1
 		rc = gpio_request(gf_dev->irq_gpio, "goodix_irq");
 		if (rc) {
 			dev_err(&gf_dev->spi->dev, "Failed to request IRQ GPIO. rc = %d\n", rc);
@@ -49,7 +52,9 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 		}
 		gpio_direction_input(gf_dev->irq_gpio);
 		gpio_free(gf_dev->irq_gpio);
+#endif
 	}
+
 
 	return 0;
 }

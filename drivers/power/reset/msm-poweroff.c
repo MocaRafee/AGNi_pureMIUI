@@ -73,8 +73,12 @@ static void scm_disable_sdi(void);
 
 static int in_panic;
 static int dload_type = SCM_DLOAD_FULLDUMP;
-#ifdef CONFIG_KERNEL_CUSTOM_WHYRED
+#if defined(CONFIG_KERNEL_CUSTOM_WHYRED)
  int download_mode = 0;
+#elif defined(CONFIG_KERNEL_CUSTOM_WAYNE)
+int download_mode = 0;
+#elif defined(CONFIG_KERNEL_CUSTOM_TULIP)
+int download_mode = 0;
 #else
  int download_mode = 1;
 #endif
@@ -316,7 +320,8 @@ static void msm_restart_prepare(const char *cmd)
 		}
 	}
 	if (in_panic) {
-			   qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_PANIC);
+		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
        } else if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
 			qpnp_pon_set_restart_reason(
@@ -344,36 +349,23 @@ static void msm_restart_prepare(const char *cmd)
 			__raw_writel(0x7766550a, restart_reason);
 		} else if (!strncmp(cmd, "oem-", 4)) {
 			unsigned long code;
-			unsigned long reset_reason;
 			int ret;
 			ret = kstrtoul(cmd + 4, 16, &code);
-			if (!ret) {
-				/* Bit-2 to bit-7 of SOFT_RB_SPARE for hard
-				 * reset reason:
-				 * Value 0 to 31 for common defined features
-				 * Value 32 to 63 for oem specific features
-				 */
-				reset_reason = code +
-						PON_RESTART_REASON_OEM_MIN;
-				if (reset_reason > PON_RESTART_REASON_OEM_MAX ||
-				   reset_reason < PON_RESTART_REASON_OEM_MIN) {
-					pr_err("Invalid oem reset reason: %lx\n",
-						reset_reason);
-				} else {
-					qpnp_pon_set_restart_reason(
-						reset_reason);
-				}
+			if (!ret)
 				__raw_writel(0x6f656d00 | (code & 0xff),
 					     restart_reason);
-			}
 		} else if (!strncmp(cmd, "edl", 3)) {
 			if (0)
 				enable_emergency_dload_mode();
 			else
 				pr_info("This command already been disabled");
 		} else {
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
 			__raw_writel(0x77665501, restart_reason);
 		}
+	} else {
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
+		__raw_writel(0x77665501, restart_reason);
 	}
 
 	flush_cache_all();

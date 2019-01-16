@@ -143,6 +143,7 @@ static int __init ctp_upgrade_init(void)
 	ctp_upgrade_workqueue = create_singlethread_workqueue("ctp_upgrade");
 	INIT_WORK(&ctp_upgrade_work, ctp_upgrade_workqueue_func);
 
+#if 1
 	g_ctp_upgrade_proc = proc_create_data(CTP_UPGRADE_PROC_FILE, 0660, NULL, &ctp_upgrade_proc_fops, NULL);
 	if (IS_ERR_OR_NULL(g_ctp_upgrade_proc)) {
 		printk("[elan] create_proc_entry 222 failed\n");
@@ -156,6 +157,26 @@ static int __init ctp_upgrade_init(void)
 	} else {
 		printk("create_proc_entry success\n");
 	}
+#else
+	g_ctp_upgrade_proc = create_proc_entry(CTP_UPGRADE_PROC_FILE, 0660, NULL);
+	if (g_ctp_upgrade_proc == NULL) {
+		printk("[elan] create_proc_entry 222 failed\n");
+	} else {
+		g_ctp_upgrade_proc->read_proc = ctp_upgrade_proc_read;
+		g_ctp_upgrade_proc->write_proc = ctp_upgrade_proc_write;
+
+		printk("[elan] create_proc_entry 222 success\n");
+	}
+
+	g_ctp_proc = create_proc_entry(CTP_PROC_FILE, 0444, NULL);
+	if (g_ctp_proc == NULL) {
+		printk("create_proc_entry failed\n");
+	} else {
+		g_ctp_proc->read_proc = ctp_proc_read;
+		g_ctp_proc->write_proc = NULL;
+		printk("create_proc_entry success\n");
+	}
+#endif
 
 	return 0;
 }

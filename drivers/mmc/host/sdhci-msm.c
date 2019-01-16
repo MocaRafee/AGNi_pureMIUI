@@ -4245,6 +4245,9 @@ static bool sdhci_msm_is_bootdevice(struct device *dev)
 	return true;
 }
 
+/* add sensor info for factory mode
+ *    begin
+ *    */
 static struct kobject *card_slot_device;
 static struct sdhci_host *card_host;
 static ssize_t card_slot_status_show(struct device *dev,
@@ -4277,6 +4280,9 @@ int32_t card_slot_init_device_name(void)
 
 	return 0 ;
 }
+/* add card slot info for factory mode
+ *    end
+ *    */
 
 static int sdhci_msm_probe(struct platform_device *pdev)
 {

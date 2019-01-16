@@ -139,6 +139,7 @@ static int mdss_fb_send_panel_event(struct msm_fb_data_type *mfd,
 static void mdss_fb_set_mdp_sync_pt_threshold(struct msm_fb_data_type *mfd,
 		int type);
 
+extern int mdss_dsi_read_reg(struct mdss_dsi_ctrl_pdata *ctrl, char cmd0, int *val0, int *val1);
 int ce_state, cabc_state, srgb_state, gamma_state;
 bool ce_resume, cabc_resume, srgb_resume, gamma_resume;
 bool first_set_bl = false;
@@ -1028,33 +1029,34 @@ int mdss_first_set_feature(struct mdss_panel_data *pdata, int first_ce_state, in
 		break;
 
 	}
-	switch (first_srgb_state) {
-	case 0x1:
-		if (ctrl->srgb_on_cmds.cmd_cnt) {
-			mdss_dsi_panel_cmds_send(ctrl, &ctrl->srgb_on_cmds, CMD_REQ_COMMIT);
-		}
-		break;
-	case 0x2:
-		if (ctrl->srgb_off_cmds.cmd_cnt) {
-			mdss_dsi_panel_cmds_send(ctrl, &ctrl->srgb_off_cmds, CMD_REQ_COMMIT);
-		}
-		break;
-	default:
-		pr_debug("unknow cmds: %d\n", first_srgb_state);
-		break;
+	switch(first_srgb_state) {
+		case 0x1:
+			if (ctrl->srgb_on_cmds.cmd_cnt){
+				mdss_dsi_panel_cmds_send(ctrl, &ctrl->srgb_on_cmds, CMD_REQ_COMMIT);
+			}
+			break;
+		case 0x2:
+			if (ctrl->srgb_off_cmds.cmd_cnt){
+				mdss_dsi_panel_cmds_send(ctrl, &ctrl->srgb_off_cmds, CMD_REQ_COMMIT);
+			}
+			break;
+		default:
+			pr_debug("unknow cmds: %d\n", first_srgb_state);
+			break;
 
 	}
-#ifdef CONFIG_KERNEL_CUSTOM_WHYRED
+#if (defined(CONFIG_KERNEL_CUSTOM_WHYRED) || defined(CONFIG_KERNEL_CUSTOM_TULIP))
+
 	switch (first_gamma_state) {
-	case 0x1:
-		mdss_dsi_set_gamma(ctrl, 1);
-		break;
-	case 0x2:
-		mdss_dsi_set_gamma(ctrl, 2);
-		break;
-	default:
-		pr_debug("unknow cmds: %d\n", first_gamma_state);
-		break;
+		case 0x1:
+			mdss_dsi_set_gamma(ctrl, 1);
+			break;
+		case 0x2:
+			mdss_dsi_set_gamma(ctrl, 2);
+			break;
+		default:
+			pr_debug("unknow cmds: %d\n", first_gamma_state);
+			break;
 
 	}
 #endif
@@ -1377,6 +1379,37 @@ static ssize_t mdss_fb_set_gamma(struct device *dev, struct device_attribute *at
 
 }
 
+static ssize_t mdss_fb_get_whitepoint(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct fb_info *fbi = dev_get_drvdata(dev);
+	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
+	struct mdss_panel_data *pdata;
+	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
+	int val0 = 0;
+	int val1 = 0;
+	ssize_t ret = 0;
+
+	pdata = dev_get_platdata(&mfd->pdev->dev);
+	if (!pdata) {
+		pr_err("no panel connected!\n");
+		return -EINVAL;;
+	}
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+				panel_data);
+	if (!ctrl) {
+		pr_err("not available\n");
+		return -EINVAL;;
+	}
+
+	mdss_dsi_read_reg(ctrl, 0xa1,  &val0,  &val1);
+	printk("henty: %x %x \n", val0, val1);
+
+	ret = snprintf(buf, PAGE_SIZE, "val0=%d, val1=%d\n", val0, val1);
+
+	return ret;
+}
+
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
 static DEVICE_ATTR(msm_fb_split, S_IRUGO | S_IWUSR, mdss_fb_show_split,
 					mdss_fb_store_split);
@@ -1402,6 +1435,7 @@ static DEVICE_ATTR(msm_fb_ce, 0644, NULL, mdss_fb_set_ce);
 static DEVICE_ATTR(msm_fb_cabc, 0644, NULL, mdss_fb_set_cabc);
 static DEVICE_ATTR(msm_fb_srgb, 0644, NULL, mdss_fb_set_srgb);
 static DEVICE_ATTR(msm_fb_gamma, 0644, NULL, mdss_fb_set_gamma);
+static DEVICE_ATTR(msm_fb_whitepoint, 0644, mdss_fb_get_whitepoint, NULL);
 
 static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_type.attr,
@@ -1421,6 +1455,7 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_cabc.attr,
 	&dev_attr_msm_fb_srgb.attr,
 	&dev_attr_msm_fb_gamma.attr,
+	&dev_attr_msm_fb_whitepoint.attr,
 	NULL,
 };
 
@@ -2582,10 +2617,10 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	case FB_BLANK_POWERDOWN:
 	default:
 		req_power_state = MDSS_PANEL_POWER_OFF;
-		 ce_resume = true;
-		 cabc_resume = true;
-		 srgb_resume = true;
-		 gamma_resume = true;
+		ce_resume = true;
+		cabc_resume = true;
+		srgb_resume = true;
+		gamma_resume = true;
 		printk("%s:blank powerdown called\n", __func__);
 		ret = mdss_fb_blank_blank(mfd, req_power_state);
 		break;
@@ -5806,7 +5841,7 @@ int mdss_prim_panel_fb_unblank(int timeout)
 {
 	int ret = 0;
 	struct msm_fb_data_type *mfd = NULL;
-		 printk("prim_fbi 00\n");
+	printk("prim_fbi 00\n");
 	if (prim_fbi) {
 		printk("prim_fbi 01\n");
 		mfd = (struct msm_fb_data_type *)prim_fbi->par;

@@ -142,6 +142,19 @@ static struct jeita_fcc_cfg jeita_fcc_config = {
 		{451,		600,		1200000},
 	},
 };
+#elif defined(CONFIG_KERNEL_CUSTOM_TULIP)
+static struct jeita_fcc_cfg jeita_fcc_config = {
+	.psy_prop	= POWER_SUPPLY_PROP_TEMP,
+	.prop_name	= "BATT_TEMP",
+	.hysteresis	= 0, /* 1degC hysteresis */
+	.fcc_cfg	= {
+		/* TEMP_LOW	TEMP_HIGH	FCC */
+		{0,		50,		400000},
+		{51,		150,		1200000},
+		{151,		450,		2500000},
+		{451,		600,		2000000},
+	},
+};
 #endif
 static struct jeita_fv_cfg jeita_fv_config = {
 	.psy_prop	= POWER_SUPPLY_PROP_TEMP,
@@ -374,21 +387,11 @@ static void status_change_work(struct work_struct *work)
 	int reschedule_us;
 	int reschedule_jeita_work_us = 0;
 	int reschedule_step_work_us = 0;
-	union power_supply_propval pval = {0, };
 
-	if (!is_batt_available(chip)) {
-		__pm_relax(chip->step_chg_ws);
+	if (!is_batt_available(chip))
 		return;
-	}
 
-	/* skip jeita and step if not charging */
-	rc = power_supply_get_property(chip->batt_psy,
-		POWER_SUPPLY_PROP_STATUS, &pval);
-	if (pval.intval != POWER_SUPPLY_STATUS_CHARGING) {
-		__pm_relax(chip->step_chg_ws);
-		return;
-	}
-
+	/* skip elapsed_us debounce for handling battery temperature */
 	rc = handle_jeita(chip);
 	if (rc > 0)
 		reschedule_jeita_work_us = rc;

@@ -40,7 +40,7 @@
 #if NVT_TOUCH_ESD_PROTECT
 #include <linux/jiffies.h>
 #endif /* #if NVT_TOUCH_ESD_PROTECT */
-
+extern bool tianma_jdi_flag;
 #if NVT_TOUCH_ESD_PROTECT
 static struct delayed_work nvt_esd_check_work;
 static struct workqueue_struct *nvt_esd_check_wq;
@@ -367,6 +367,7 @@ void nvt_bootloader_reset(void)
 {
 	uint8_t buf[8] = {0};
 
+	//---write i2c cmds to reset---
 	buf[0] = 0x00;
 	buf[1] = 0x69;
 	CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
@@ -474,6 +475,7 @@ int32_t nvt_check_fw_reset_state(RST_COMPLETE_STATE check_reset_state)
 	while (1) {
 		msleep(10);
 
+		//---read reset state---
 		buf[0] = EVENT_MAP_RESET_COMPLETE;
 		buf[1] = 0x00;
 		CTP_I2C_READ(ts->client, I2C_FW_Address, buf, 6);
@@ -736,7 +738,7 @@ return:
 *******************************************************/
 static int32_t nvt_flash_proc_init(void)
 {
-	NVT_proc_entry = proc_create(DEVICE_NAME, 0444, NULL,  &nvt_flash_fops);
+	NVT_proc_entry = proc_create(DEVICE_NAME, 0444, NULL, &nvt_flash_fops);
 	if (NVT_proc_entry == NULL) {
 		NVT_ERR("Failed!\n");
 		return -ENOMEM;
@@ -1001,6 +1003,13 @@ static void nvt_ts_work_func(struct work_struct *work)
 		NVT_ERR("CTP_I2C_READ failed.(%d)\n", ret);
 		goto XFER_ERROR;
 	}
+/*
+	//--- dump I2C buf ---
+	for (i = 0; i < 10; i++) {
+		printk("%02X %02X %02X %02X %02X %02X  ", point_data[1+i*6], point_data[2+i*6], point_data[3+i*6], point_data[4+i*6], point_data[5+i*6], point_data[6+i*6]);
+	}
+	printk("\n");
+*/
 
 #if NVT_TOUCH_ESD_PROTECT
 	if (nvt_fw_recovery(point_data)) {
@@ -1330,8 +1339,8 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 #if TOUCH_MAX_FINGER_NUM > 1
 	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 
-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0, ts->abs_x_max, 0, 0);
-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0, ts->abs_y_max, 0, 0);
+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0, ts->abs_x_max-1, 0, 0);
+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0, ts->abs_y_max-1, 0, 0);
 #if MT_PROTOCOL_B
 
 #else
@@ -1427,10 +1436,15 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 		goto err_init_NVT_ts;
 	}
 #endif
-
-	memset(fw_version, 0, sizeof(fw_version));
-	sprintf(fw_version, "[FW]0x%02x,[IC]nvt36672", ts->fw_ver);
-	init_tp_fm_info(0, fw_version, "tianma");
+    if (tianma_jdi_flag == 0) {
+  		memset(fw_version, 0, sizeof(fw_version));
+		sprintf(fw_version, "[FW]0x%02x,[IC]nvt36672", ts->fw_ver);
+		init_tp_fm_info(0, fw_version, "tianma");
+	} else {
+		memset(fw_version, 0, sizeof(fw_version));
+		sprintf(fw_version, "[FW]0x%02x,[IC]nvt36672", ts->fw_ver);
+		init_tp_fm_info(0, fw_version, "jdi");
+	}
 
 #if defined(CONFIG_FB)
 	ts->fb_notif.notifier_call = fb_notifier_callback;
@@ -1548,7 +1562,13 @@ static int32_t nvt_ts_suspend(struct device *dev)
 
 		buf[0] = EVENT_MAP_HOST_CMD;
 		buf[1] = 0x13;
+#if 0
+		buf[2] = 0xFF;
+		buf[3] = 0xFF;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 4);
+#else
 		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
+#endif
 
 		enable_irq_wake(ts->client->irq);
 

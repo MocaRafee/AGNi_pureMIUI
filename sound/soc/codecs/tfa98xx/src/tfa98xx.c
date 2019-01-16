@@ -59,15 +59,15 @@
 #define TF98XX_MAX_DSP_START_TRY_COUNT	10
 
 /* data accessible by all instances */
-static struct kmem_cache *tfa98xx_cache;  /* Memory pool used for DSP messages */
+static struct kmem_cache *tfa98xx_cache = NULL;  /* Memory pool used for DSP messages */
 /* Mutex protected data */
 static DEFINE_MUTEX(tfa98xx_mutex);
 static LIST_HEAD(tfa98xx_device_list);
 static int tfa98xx_device_count;
 static int tfa98xx_sync_count;
 static LIST_HEAD(profile_list);        /* list of user selectable profiles */
-static int tfa98xx_mixer_profiles; /* number of user selectable profiles */
-static int tfa98xx_mixer_profile;  /* current mixer profile */
+static int tfa98xx_mixer_profiles = 0; /* number of user selectable profiles */
+static int tfa98xx_mixer_profile = 0;  /* current mixer profile */
 static struct snd_kcontrol_new *tfa98xx_controls;
 static nxpTfaContainer_t *tfa98xx_container;
 
@@ -216,7 +216,7 @@ static int tfa98xx_input_open(struct input_dev *dev)
 	tfa98xx->tapdet_open = true;
 	tfa98xx_tapdet_check_update(tfa98xx);
 
-		 return 0;
+	return 0;
 }
 
 static void tfa98xx_input_close(struct input_dev *dev)
@@ -937,7 +937,7 @@ static int is_profile_in_list(char *profile, int len)
 			return 1;
 	}
 
-    return 0;
+	return 0;
 }
 
 /*

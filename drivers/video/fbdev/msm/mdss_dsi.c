@@ -567,6 +567,7 @@ static void mdss_dsi_put_dt_vreg_data(struct device *dev,
 	module_power->num_vreg = 0;
 }
 
+extern char g_lcd_id[128];
 static int mdss_dsi_get_dt_vreg_data(struct device *dev,
 	struct device_node *of_node, struct dss_module_power *mp,
 	enum dsi_pm_type module)
@@ -681,6 +682,23 @@ static int mdss_dsi_get_dt_vreg_data(struct device *dev,
 			mp->vreg_config[i].pre_on_sleep = tmp;
 		}
 
+#ifdef CONFIG_KERNEL_CUSTOM_TULIP
+	rc = of_property_read_u32(supply_node,
+			"qcom,supply-pre-off-sleep", &tmp);
+		if (rc) {
+			pr_debug("%s: error reading supply pre sleep value. rc=%d\n",
+				__func__, rc);
+			rc = 0;
+		} else {
+			mp->vreg_config[i].pre_off_sleep = tmp;
+		}
+
+	if (strcmp(g_lcd_id, "tianma ft8719 fhdplus video mode dsi panel") == 0 && strcmp(mp->vreg_config[i].vreg_name, "ibb") == 0)
+	{
+		mp->vreg_config[i].pre_off_sleep = 4;
+		printk("wjx func=%s, line=%d\n", __func__, __LINE__);
+	}
+#else
 		rc = of_property_read_u32(supply_node,
 			"qcom,supply-pre-off-sleep", &tmp);
 		if (rc) {
@@ -690,6 +708,7 @@ static int mdss_dsi_get_dt_vreg_data(struct device *dev,
 		} else {
 			mp->vreg_config[i].pre_off_sleep = tmp;
 		}
+#endif
 
 		/* post-sleep */
 		rc = of_property_read_u32(supply_node,
@@ -1947,7 +1966,9 @@ static int mdss_dsi_unblank(struct mdss_panel_data *pdata)
 	}
 
 #ifdef CONFIG_KERNEL_CUSTOM_WHYRED
+	/*add for white point check -start-*/
 
+	/*add for white point check -end-*/
 #endif
 
 	if ((pdata->panel_info.type == MIPI_CMD_PANEL) &&

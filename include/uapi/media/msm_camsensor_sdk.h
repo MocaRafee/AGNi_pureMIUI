@@ -73,6 +73,7 @@ enum camb_position_t {
 	FRONT_CAMERA_B,
 	AUX_CAMERA_B = 0x100,
 	FRONT_AUX_CAMERA_B,
+	AUX_CAMERA_FRONT_B = 0x101,
 	INVALID_CAMERA_B,
 };
 

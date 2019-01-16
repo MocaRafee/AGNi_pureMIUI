@@ -1815,7 +1815,7 @@ static int qpnp_flashlight_led_parse_and_register(struct qpnp_flash_led *led,
 		for (i = 0; i < count; ++i) {
 			flashlight_node->torch_name = temp_name;
 			temp_name[i] = kzalloc(sizeof(char) * NAME_SIZE, GFP_KERNEL);
-			rc = of_property_read_string_index(node, "qcom,torch-name", i,  &temp_name[i]);
+			rc = of_property_read_string_index(node, "qcom,torch-name", i, &temp_name[i]);
 			pr_debug("%s torch_name[%d] = %s\n", __func__, i, flashlight_node->torch_name[i]);
 		}
 	} else
@@ -1836,7 +1836,7 @@ static int qpnp_flashlight_led_parse_and_register(struct qpnp_flash_led *led,
 		for (i = 0; i < count; ++i) {
 			flashlight_node->switch_name = temp_name;
 			temp_name[i] = kzalloc(sizeof(char) * NAME_SIZE, GFP_KERNEL);
-			rc = of_property_read_string_index(node, "qcom,switch-name", i,  &temp_name[i]);
+			rc = of_property_read_string_index(node, "qcom,switch-name", i, &temp_name[i]);
 			pr_debug("%s switch_name[%d] = %s\n", __func__, i, flashlight_node->switch_name[i]);
 		}
 	} else

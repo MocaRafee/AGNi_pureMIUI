@@ -201,9 +201,15 @@ static struct wcd_mbhc_config mbhc_cfg = {
 	.swap_gnd_mic = NULL,
 	.hs_ext_micbias = true,
 	.key_code[0] = KEY_MEDIA,
+#if 0
+	.key_code[1] = KEY_VOICECOMMAND,
+    .key_code[2] = KEY_VOLUMEUP,
+    .key_code[3] = KEY_VOLUMEDOWN,
+#else
 	.key_code[1] = BTN_1,
 	.key_code[2] = BTN_2,
 	.key_code[3] = 0,
+#endif
 	.key_code[4] = 0,
 	.key_code[5] = 0,
 	.key_code[6] = 0,
@@ -2497,9 +2503,6 @@ int msm_mi2s_snd_startup(struct snd_pcm_substream *substream)
 			__func__, cpu_dai->id);
 		goto done;
 	}
-#if defined(CONFIG_SND_SOC_TAS2557) || defined(CONFIG_SND_I2S_PRIMARY)
-	pri_i2s_gpio_enable(true);
-#endif
 	/*
 	 * Muxtex protection in case the same MI2S
 	 * interface using for both TX and RX  so
@@ -2512,6 +2515,9 @@ int msm_mi2s_snd_startup(struct snd_pcm_substream *substream)
 			mi2s_clk[index].clk_id = mi2s_ebit_clk[index];
 			fmt = SND_SOC_DAIFMT_CBM_CFM;
 		}
+#if defined(CONFIG_SND_SOC_TAS2557) || defined(CONFIG_SND_I2S_PRIMARY)
+		pri_i2s_gpio_enable(true);
+#endif
 		ret = msm_mi2s_set_sclk(substream, true);
 		if (IS_ERR_VALUE(ret)) {
 			dev_err(rtd->card->dev,
@@ -2571,15 +2577,16 @@ void msm_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 		pr_err("%s:invalid MI2S DAI(%d)\n", __func__, index);
 		return;
 	}
-#if defined(CONFIG_SND_SOC_TAS2557) || defined(CONFIG_SND_I2S_PRIMARY)
-	pri_i2s_gpio_enable(false);
-#endif
 	mutex_lock(&mi2s_intf_conf[index].lock);
 	if (--mi2s_intf_conf[index].ref_cnt == 0) {
 		ret = msm_mi2s_set_sclk(substream, false);
 		if (ret < 0)
 			pr_err("%s:clock disable failed for MI2S (%d); ret=%d\n",
 				__func__, index, ret);
+
+#if defined(CONFIG_SND_SOC_TAS2557) || defined(CONFIG_SND_I2S_PRIMARY)
+		pri_i2s_gpio_enable(false);
+#endif
 		if (mi2s_intf_conf[index].msm_is_ext_mclk) {
 			mi2s_mclk[index].enable = 0;
 			pr_debug("%s: Disabling mclk, clk_freq_in_hz = %u\n",

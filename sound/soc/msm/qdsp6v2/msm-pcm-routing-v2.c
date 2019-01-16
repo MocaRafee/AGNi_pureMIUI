@@ -2997,6 +2997,23 @@ static SOC_ENUM_DOUBLE_DECL(mm1_ch7_enum,
 static SOC_ENUM_DOUBLE_DECL(mm1_ch8_enum,
 	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA1, 7, be_name);
 
+static SOC_ENUM_DOUBLE_DECL(mm2_ch1_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 0, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch2_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 1, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch3_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 2, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch4_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 3, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch5_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 4, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch6_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 5, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch7_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 6, be_name);
+static SOC_ENUM_DOUBLE_DECL(mm2_ch8_enum,
+	SND_SOC_NOPM, MSM_FRONTEND_DAI_MULTIMEDIA2, 7, be_name);
+
 static int msm_pcm_get_ctl_enum_info(struct snd_ctl_elem_info *uinfo,
 		unsigned int channels,
 		unsigned int items, const char *const names[])
@@ -3410,6 +3427,16 @@ static const struct snd_kcontrol_new channel_mixer_controls[] = {
 	{
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Output Channel4",
+	.info = msm_pcm_channel_weight_info,
+	.get = msm_pcm_channel_weight_get,
+	.put = msm_pcm_channel_weight_put,
+	.private_value = (unsigned long)&(struct soc_multi_mixer_control)
+		{.shift = MSM_FRONTEND_DAI_MULTIMEDIA2, .rshift = 3,}
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
 	.name = "MultiMedia3 Output Channel1",
 	.info = msm_pcm_channel_weight_info,
 	.get = msm_pcm_channel_weight_get,
@@ -3498,6 +3525,78 @@ static const struct snd_kcontrol_new channel_mixer_controls[] = {
 	.get = msm_pcm_channel_input_be_get,
 	.put = msm_pcm_channel_input_be_put,
 	.private_value = (unsigned long)&(mm1_ch8_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel1",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch1_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel2",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch2_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel3",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch3_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel4",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch4_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel5",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch5_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel6",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch6_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel7",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch7_enum)
+	},
+	{
+	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
+	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
+	.name = "MultiMedia2 Channel8",
+	.info = msm_pcm_channel_input_be_info,
+	.get = msm_pcm_channel_input_be_get,
+	.put = msm_pcm_channel_input_be_put,
+	.private_value = (unsigned long)&(mm2_ch8_enum)
 	},
 };
 
@@ -14225,6 +14324,44 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"QUAT_TDM_RX_0 Audio Mixer", "MultiMedia26", "MM_DL26"},
 	{"QUAT_TDM_RX_0", NULL, "QUAT_TDM_RX_0 Audio Mixer"},
 
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia1", "MM_DL1"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia2", "MM_DL2"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia3", "MM_DL3"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia4", "MM_DL4"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia5", "MM_DL5"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia6", "MM_DL6"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia7", "MM_DL7"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia8", "MM_DL8"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia9", "MM_DL9"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia10", "MM_DL10"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia11", "MM_DL11"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia12", "MM_DL12"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia13", "MM_DL13"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia14", "MM_DL14"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia15", "MM_DL15"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia16", "MM_DL16"},
+	{"PRI_TDM_RX_0 Audio Mixer", "MultiMedia26", "MM_DL26"},
+	{"PRI_TDM_RX_0", NULL, "PRI_TDM_RX_0 Audio Mixer"},
+
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia1", "MM_DL1"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia2", "MM_DL2"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia3", "MM_DL3"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia4", "MM_DL4"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia5", "MM_DL5"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia6", "MM_DL6"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia7", "MM_DL7"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia8", "MM_DL8"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia9", "MM_DL9"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia10", "MM_DL10"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia11", "MM_DL11"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia12", "MM_DL12"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia13", "MM_DL13"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia14", "MM_DL14"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia15", "MM_DL15"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia16", "MM_DL16"},
+	{"SEC_TDM_RX_0 Audio Mixer", "MultiMedia26", "MM_DL26"},
+	{"SEC_TDM_RX_0", NULL, "SEC_TDM_RX_0 Audio Mixer"},
+
 	{"QUAT_TDM_TX_0 Audio Mixer", "MultiMedia1", "MM_DL1"},
 	{"QUAT_TDM_TX_0 Audio Mixer", "MultiMedia2", "MM_DL2"},
 	{"QUAT_TDM_TX_0 Audio Mixer", "MultiMedia3", "MM_DL3"},
@@ -16966,6 +17103,7 @@ end:
 	kfree(adm_params);
 	return rc;
 }
+/*tang shouxing add for voice wake up device  10/01*/
 #ifdef CONFIG_SND_SOC_DBMDX
 extern const struct snd_kcontrol_new dbmdx_va_snd_controls[10];
 #endif
@@ -17006,11 +17144,12 @@ static int msm_routing_probe(struct snd_soc_platform *platform)
 
 	snd_soc_add_platform_controls(platform, native_mode_controls,
 				ARRAY_SIZE(native_mode_controls));
-
-	#ifdef CONFIG_SND_SOC_DBMDX
+/*tang shouxing add for voice wake up device  10/01 begin*/
+#ifdef CONFIG_SND_SOC_DBMDX
 	snd_soc_add_platform_controls(platform, dbmdx_va_snd_controls,
 				ARRAY_SIZE(dbmdx_va_snd_controls));
-	#endif
+#endif
+/*end*/
 
 	msm_qti_pp_add_controls(platform);
 

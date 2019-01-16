@@ -1425,6 +1425,10 @@ void extract_dci_ext_pkt(unsigned char *buf, int len, int data_source,
 		return;
 	}
 
+	if (len < (EXT_HDR_LEN + sizeof(uint8_t))) {
+		pr_err("diag: In %s invalid len: %d\n", __func__, len);
+		return;
+	}
 	version = *(uint8_t *)buf + 1;
 	if (version < EXT_HDR_VERSION)  {
 		pr_err("diag: %s, Extended header with invalid version: %d\n",

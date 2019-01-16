@@ -2,6 +2,7 @@
  *  Universal power supply monitor class
  *
  *  Copyright © 2007  Anton Vorontsov <cbou@mail.ru>
+ *  Copyright (C) 2018 XiaoMi, Inc.
  *  Copyright © 2004  Szabolcs Gyurko
  *  Copyright © 2003  Ian Molton <spyro@f2s.com>
  *
@@ -103,9 +104,6 @@ enum {
 	POWER_SUPPLY_DP_DM_HVDCP3_SUPPORTED = 10,
 	POWER_SUPPLY_DP_DM_ICL_DOWN = 11,
 	POWER_SUPPLY_DP_DM_ICL_UP = 12,
-	POWER_SUPPLY_DP_DM_FORCE_5V = 13,
-	POWER_SUPPLY_DP_DM_FORCE_9V = 14,
-	POWER_SUPPLY_DP_DM_FORCE_12V = 15,
 };
 
 enum {
@@ -260,7 +258,8 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_PD_VOLTAGE_MAX,
 	POWER_SUPPLY_PROP_PD_VOLTAGE_MIN,
 	POWER_SUPPLY_PROP_SDP_CURRENT_MAX,
-	POWER_SUPPLY_PROP_FCC_STEPPER_ENABLE,
+	POWER_SUPPLY_PROP_FG_RESET_CLOCK,
+	POWER_SUPPLY_PROP_RERUN_APSD,
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT,
 	/* Properties of type `const char *' */
@@ -268,7 +267,6 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_MANUFACTURER,
 	POWER_SUPPLY_PROP_SERIAL_NUMBER,
 	POWER_SUPPLY_PROP_BATTERY_TYPE,
-	POWER_SUPPLY_PROP_MAX
 };
 
 enum power_supply_type {

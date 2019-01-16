@@ -794,7 +794,7 @@ return:
 *******************************************************/
 int32_t nvt_extra_proc_init(void)
 {
-	NVT_proc_fw_version_entry = proc_create(NVT_FW_VERSION, 0444, NULL,  &nvt_fw_version_fops);
+	NVT_proc_fw_version_entry = proc_create(NVT_FW_VERSION, 0444, NULL, &nvt_fw_version_fops);
 	if (NVT_proc_fw_version_entry == NULL) {
 		NVT_ERR("create proc/nvt_fw_version Failed!\n");
 		return -ENOMEM;
@@ -802,7 +802,7 @@ int32_t nvt_extra_proc_init(void)
 		NVT_LOG("create proc/nvt_fw_version Succeeded!\n");
 	}
 
-	NVT_proc_baseline_entry = proc_create(NVT_BASELINE, 0444, NULL,  &nvt_baseline_fops);
+	NVT_proc_baseline_entry = proc_create(NVT_BASELINE, 0444, NULL, &nvt_baseline_fops);
 	if (NVT_proc_baseline_entry == NULL) {
 		NVT_ERR("create proc/nvt_baseline Failed!\n");
 		return -ENOMEM;
@@ -810,7 +810,7 @@ int32_t nvt_extra_proc_init(void)
 		NVT_LOG("create proc/nvt_baseline Succeeded!\n");
 	}
 
-	NVT_proc_raw_entry = proc_create(NVT_RAW, 0444, NULL,  &nvt_raw_fops);
+	NVT_proc_raw_entry = proc_create(NVT_RAW, 0444, NULL, &nvt_raw_fops);
 	if (NVT_proc_raw_entry == NULL) {
 		NVT_ERR("create proc/nvt_raw Failed!\n");
 		return -ENOMEM;
@@ -818,7 +818,7 @@ int32_t nvt_extra_proc_init(void)
 		NVT_LOG("create proc/nvt_raw Succeeded!\n");
 	}
 
-	NVT_proc_diff_entry = proc_create(NVT_DIFF, 0444, NULL,  &nvt_diff_fops);
+	NVT_proc_diff_entry = proc_create(NVT_DIFF, 0444, NULL, &nvt_diff_fops);
 	if (NVT_proc_diff_entry == NULL) {
 		NVT_ERR("create proc/nvt_diff Failed!\n");
 		return -ENOMEM;

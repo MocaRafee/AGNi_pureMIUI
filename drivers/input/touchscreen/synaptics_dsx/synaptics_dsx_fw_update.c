@@ -46,11 +46,11 @@
 #include "../lct_ctp_upgrade.h"
 #include <linux/proc_fs.h>
 
-#define FW_IHEX_NAME "synaptics/tianma_td4310_miui_wayne.bin"
-#define FW_IMAGE_NAME "synaptics/tianma_td4310_miui_wayne.img"
+#define FW_IHEX_NAME "synaptics/tianma_td4310_miui_whyred.bin"
+#define FW_IMAGE_NAME "synaptics/tianma_td4310_miui_whyred.img"
 
-#define FW_IHEX_NAME_SHENCHAO "synaptics/shenchao_td4310_miui_wayne.bin"
-#define FW_IMAGE_NAME_SHENCHAO "synaptics/shenchao_td4310_miui_wayne.img"
+#define FW_IHEX_NAME_SHENCHAO "synaptics/shenchao_td4310_miui_whyred.bin"
+#define FW_IMAGE_NAME_SHENCHAO "synaptics/shenchao_td4310_miui_whyred.img"
 
 #define DO_STARTUP_FW_UPDATE
 
@@ -4495,7 +4495,7 @@ static int fwu_start_reflash(void)
 	pr_notice("%s: Start of reflash process\n", __func__);
 
 	if (fwu->image == NULL) {
-		if ((tp_lockdown_info[0] == '4')&&(tp_lockdown_info[1] == '1')) {
+		if ((tp_lockdown_info[0] == '4') && (tp_lockdown_info[1] == '1')) {
 			retval = secure_memcpy(fwu->image_name, MAX_IMAGE_NAME_LEN,
 					FW_IMAGE_NAME_SHENCHAO, sizeof(FW_IMAGE_NAME_SHENCHAO),
 					sizeof(FW_IMAGE_NAME_SHENCHAO));
@@ -4709,7 +4709,7 @@ exit:
 	printk("config_ver info =%02x\n", config_ver[0]);
 	memset(fw_version, 0, sizeof(fw_version));
 	sprintf(fw_version, "[FW]0x%02x,[IC]td4310", config_ver[0]);
-	if ((tp_lockdown_info[0] == '4')&&(tp_lockdown_info[1] == '1')) {
+	if ((tp_lockdown_info[0] == '4') && (tp_lockdown_info[1] == '1')) {
 		init_tp_fm_info(0, fw_version, "shenchao");
 		tp_flag = 1;
 	} else {

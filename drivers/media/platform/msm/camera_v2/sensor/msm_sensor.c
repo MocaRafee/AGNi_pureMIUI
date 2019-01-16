@@ -1,4 +1,5 @@
 /* Copyright (c) 2011-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -302,6 +303,8 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 		return rc;
 	}
 	if (s_ctrl->sensordata->vendor_id_info->vendor_id != vendorid) {
+		pr_err("%s:match vendor if failed read vendor id: 0x%x expected id 0x%x:\n",
+			__func__, vendorid, s_ctrl->sensordata->vendor_id_info->vendor_id);
 		rc = -1;
 		return rc;
 #ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI

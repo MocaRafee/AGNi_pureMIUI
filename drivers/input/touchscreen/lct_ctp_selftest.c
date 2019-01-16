@@ -28,7 +28,7 @@ static CTP_SELFTEST_FUNC PSelftest_func;
 #define CTP_FELF_TEST_RETROY_COUNT      3
 #define CTP_SELF_TEST_CHECK_STATE_COUNT 30
 
-#define CTP_SELF_TEST_PROC_FILE "ctp_selftest"
+#define CTP_SELF_TEST_PROC_FILE "tp_selftest"
 static struct proc_dir_entry *g_ctp_selftest_proc;
 static struct work_struct ctp_selftest_work;
 static struct workqueue_struct *ctp_selftest_workqueue;
@@ -47,7 +47,7 @@ static ssize_t ctp_selftest_proc_write(struct file *file, const char __user *buf
 		return -EFAULT;
 	}
 
-	if ((strncmp(tmp_data, "ctp_selftest", strlen("ctp_selftest")) == 0) && (is_in_self_test == 0)) {
+	if ((strncmp(tmp_data, "i2c", strlen("i2c")) == 0) && (is_in_self_test == 0)) {
 		printk("ctp_selftest_proc_write start \n");
 		strcpy(ft_ctp_selftest_status, "Testing");
 		is_in_self_test = 1;
@@ -87,21 +87,24 @@ static void ctp_selftest_workqueue_func(struct work_struct *work)
 	int val = 0x00;
 	printk("ctp_selftest_workqueue_func is_in_self_test=%d, retry_count=%d\n", is_in_self_test, retry_count);
 	val = ctp_chip_self_test();
-	if (val == 0) {
-		strcpy(ft_ctp_selftest_status, "PASS");
+	if (val == 2) {
+		strcpy(ft_ctp_selftest_status, "2\n");
 		is_in_self_test = 0;
 		printk("ctp_selftest_workqueue_func self test success \n");
-	} else {
+	} else if (val == 1) {
 		retry_count--;
 		if (retry_count > 0) {
 			printk("ctp_selftest_workqueue_func self test retry retry_count=%d\n", retry_count);
 			queue_work(ctp_selftest_workqueue, &ctp_selftest_work);
 		} else {
-			strcpy(ft_ctp_selftest_status, "FAIL");
+			strcpy(ft_ctp_selftest_status, "1\n");
 			printk("ctp_selftest_workqueue_func self test failed\n");
 			is_in_self_test = 0;
 		}
-
+	} else {
+		strcpy(ft_ctp_selftest_status, "0\n");
+		is_in_self_test = 0;
+		printk("ctp_selftest_workqueue_func self test invalid\n");
 	}
 
 }
@@ -129,12 +132,26 @@ static int  ctp_selftest_init(void)
 	ctp_selftest_workqueue = create_singlethread_workqueue("ctp_selftest");
 	INIT_WORK(&ctp_selftest_work, ctp_selftest_workqueue_func);
 
+#if 1
 	g_ctp_selftest_proc = proc_create_data(CTP_SELF_TEST_PROC_FILE, 0660, NULL, &ctp_selftest_proc_fops, NULL);
-	if (IS_ERR_OR_NULL(g_ctp_selftest_proc)) {
+	if (IS_ERR_OR_NULL(g_ctp_selftest_proc))
+	{
 		printk("create_proc_entry g_ctp_selftest_proc failed\n");
-	} else {
+	}
+	else
+	{
 		printk("create_proc_entry g_ctp_selftest_proc success\n");
 	}
+#else
+	g_ctp_selftest_proc = create_proc_entry(CTP_SELF_TEST_PROC_FILE, 0660, NULL);
+	if (g_ctp_selftest_proc == NULL) {
+		printk("create_proc_entry g_ctp_selftest_proc failed\n");
+	} else {
+		g_ctp_selftest_proc->read_proc = ctp_selftest_proc_read;
+		g_ctp_selftest_proc->write_proc = ctp_selftest_proc_write;
+		printk("create_proc_entry g_ctp_selftest_proc success\n");
+	}
+#endif
 	return 0;
 }
 

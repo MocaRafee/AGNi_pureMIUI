@@ -1,4 +1,5 @@
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -105,7 +106,8 @@ static int msm_digcdc_clock_control(bool flag)
 				 * Avoid access to lpass register
 				 * as clock enable failed during SSR.
 				 */
-				msm_dig_cdc->regmap->cache_only = true;
+				if (ret == -ENODEV)
+					msm_dig_cdc->regmap->cache_only = true;
 				return ret;
 			}
 			pr_debug("enabled digital codec core clk\n");
@@ -1502,9 +1504,6 @@ static const struct snd_soc_dapm_route audio_dig_map[] = {
 	{"RX2 MIX1 INP2", "RX3", "I2S RX3"},
 	{"RX2 MIX1 INP2", "IIR1", "IIR1"},
 	{"RX2 MIX1 INP2", "IIR2", "IIR2"},
-	{"RX2 MIX1 INP3", "RX1", "I2S RX1"},
-	{"RX2 MIX1 INP3", "RX2", "I2S RX2"},
-	{"RX2 MIX1 INP3", "RX3", "I2S RX3"},
 
 	{"RX3 MIX1 INP1", "RX1", "I2S RX1"},
 	{"RX3 MIX1 INP1", "RX2", "I2S RX2"},
@@ -1516,9 +1515,6 @@ static const struct snd_soc_dapm_route audio_dig_map[] = {
 	{"RX3 MIX1 INP2", "RX3", "I2S RX3"},
 	{"RX3 MIX1 INP2", "IIR1", "IIR1"},
 	{"RX3 MIX1 INP2", "IIR2", "IIR2"},
-	{"RX3 MIX1 INP3", "RX1", "I2S RX1"},
-	{"RX3 MIX1 INP3", "RX2", "I2S RX2"},
-	{"RX3 MIX1 INP3", "RX3", "I2S RX3"},
 
 	{"RX1 MIX2 INP1", "IIR1", "IIR1"},
 	{"RX2 MIX2 INP1", "IIR1", "IIR1"},
@@ -1796,7 +1792,7 @@ static const struct snd_soc_dapm_widget msm_dig_dapm_widgets[] = {
 	SND_SOC_DAPM_AIF_OUT("I2S TX2", "AIF1 Capture", 0, SND_SOC_NOPM, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("I2S TX3", "AIF1 Capture", 0, SND_SOC_NOPM, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("I2S TX4", "AIF1 Capture", 0, SND_SOC_NOPM, 0, 0),
-	SND_SOC_DAPM_AIF_OUT("I2S TX5", "AIF1 Capture", 0, SND_SOC_NOPM, 0, 0),
+	SND_SOC_DAPM_AIF_OUT("I2S TX5", "AIF2 Capture", 0, SND_SOC_NOPM, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("I2S TX6", "AIF2 Capture", 0, SND_SOC_NOPM, 0, 0),
 
 	SND_SOC_DAPM_MIXER_E("RX1 MIX2", MSM89XX_CDC_CORE_CLK_RX_B1_CTL,
@@ -2268,10 +2264,6 @@ static int msm_dig_suspend(struct device *dev)
 
 	if (!registered_digcodec || !msm_dig_cdc) {
 		pr_debug("%s:digcodec not initialized, return\n", __func__);
-		return 0;
-	}
-	if (!registered_digcodec->component.card) {
-		pr_debug("%s:component not initialized, return\n", __func__);
 		return 0;
 	}
 	pdata = snd_soc_card_get_drvdata(registered_digcodec->component.card);

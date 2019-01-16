@@ -318,7 +318,7 @@ static struct cpufreq_driver msm_cpufreq_driver = {
 	.target		= msm_cpufreq_target,
 	.get		= msm_cpufreq_get_freq,
 	.name		= "msm",
-	.attr		 = msm_freq_attr,
+	.attr		= msm_freq_attr,
 };
 static unsigned long max_freq;
 static int cpumaxfreq_proc_show(struct seq_file *m, void *v)

@@ -14,6 +14,7 @@
 #include <linux/workqueue.h>
 #include <linux/mutex.h>
 #include <linux/regulator/consumer.h>
+#include <linux/jiffies.h>
 
 #include <linux/fb.h>
 
@@ -24,6 +25,9 @@
 #define GPIO_HALL_EINT_PIN 107
 #define CONFIG_HALL_SYS
 
+static struct delayed_work hall_irq_event_work;
+static struct workqueue_struct *hall_irq_event_wq;
+static void hall_irq_event_workfunc(struct work_struct *work);
 
 struct hall_switch_info {
 	struct mutex io_lock;
@@ -39,31 +43,42 @@ struct hall_switch_info {
 
 struct hall_switch_info *global_hall_info;
 
-static irqreturn_t hall_interrupt(int irq, void *data)
+static void hall_irq_event_workfunc(struct work_struct *work)
 {
-	struct hall_switch_info *hall_info = data;
 	int hall_gpio;
-
-	hall_gpio = gpio_get_value_cansleep(hall_info->irq_gpio);
-	pr_err("Macle irq interrupt gpio = %d\n", hall_gpio);
-	if (hall_gpio == hall_info->hall_switch_state) {
-		return IRQ_HANDLED;
-	} else {
-		hall_info->hall_switch_state = hall_gpio;
-		pr_err("Macle report key s ");
+	pr_err("Macle hall gpio state = %d\n", global_hall_info->hall_switch_state);
+	hall_gpio = gpio_get_value_cansleep(global_hall_info->irq_gpio);
+	pr_err("Macle hall irq interrupt gpio = %d\n", hall_gpio);
+	if (hall_gpio == global_hall_info->hall_switch_state){
+		enable_irq(global_hall_info->irq);
+		return;
+	}else{
+		global_hall_info->hall_switch_state = hall_gpio;
+		pr_err("Macle hall report key s ");
 	}
 	if (hall_gpio) {
-			input_report_switch(hall_info->ipdev, SW_LID, 0);
-			input_sync(hall_info->ipdev);
-	} else {
 
 
-			input_report_switch(hall_info->ipdev, SW_LID, 1);
-			input_sync(hall_info->ipdev);
+			input_report_switch(global_hall_info->ipdev, SW_LID, 0);
+			input_sync(global_hall_info->ipdev);
+	}else{
+
+
+			input_report_switch(global_hall_info->ipdev, SW_LID, 1);
+			input_sync(global_hall_info->ipdev);
 	}
+	enable_irq(global_hall_info->irq);
+	pr_err("Macle hall en irq\n");
+	return;
+}
 
+static irqreturn_t hall_interrupt(int irq, void *data)
+{
 
-	return IRQ_HANDLED;
+	disable_irq_nosync(irq);
+	queue_delayed_work(hall_irq_event_wq, &hall_irq_event_work,
+			msecs_to_jiffies(200));
+        return IRQ_HANDLED;
 }
 
 static int hall_parse_dt(struct device *dev, struct hall_switch_info *pdata)
@@ -75,7 +90,7 @@ static int hall_parse_dt(struct device *dev, struct hall_switch_info *pdata)
 	if (pdata->irq_gpio < 0)
 		return pdata->irq_gpio;
 
-	pr_info("Macle irq_gpio=%d\n", pdata->irq_gpio);
+	pr_info("Macle hall irq_gpio=%d\n", pdata->irq_gpio);
 	return 0;
 }
 
@@ -85,6 +100,28 @@ static int hall_power_on(struct device *pdev)
 	int ret = 0;
 
 	struct regulator *hall_vio;
+	#if 0
+	hall_vdd = regulator_get(pdev, "vdd");
+	if (IS_ERR(hall_vdd)) {
+		ret = -1;
+		dev_err(pdev, "Regulator get failed vdd ret=%d\n", ret);
+		return ret;
+	}
+
+	if (regulator_count_voltages(hall_vdd) > 0) {
+		ret = regulator_set_voltage(hall_vdd, 2850000, 2850000);
+		if (ret) {
+ 			dev_err(pdev, "Regulator set_vtg failed vdd ret=%d\n", ret);
+			goto reg_vdd_put;
+		}
+	}
+
+	ret = regulator_enable(hall_vdd);
+	if (ret) {
+		dev_err(pdev, "Regulator vdd enable failed ret=%d\n", ret);
+		return ret;
+	}
+	#endif
 	#if 1
 	hall_vio = regulator_get(pdev, "vdd-io");
 	if (IS_ERR(hall_vio)) {
@@ -164,7 +201,7 @@ static int hall_probe(struct platform_device *pdev)
 	if (pdev->dev.of_node) {
 		hall_info = kzalloc(sizeof(struct hall_switch_info), GFP_KERNEL);
 		if (!hall_info) {
-			pr_err("Macle %s: failed to alloc memory for module data\n", __func__);
+			pr_err("Macle %s:hall failed to alloc memory for module data\n", __func__);
 			return -ENOMEM;
 		}
 		err = hall_parse_dt(&pdev->dev, hall_info);
@@ -216,7 +253,7 @@ static int hall_probe(struct platform_device *pdev)
 		pr_err("hall_probe: gpios = %d, gpion=%d\n", hall_info->hall_switch_state, hall_info->hall_switch_state);
 
 		hall_info->irq = gpio_to_irq(hall_info->irq_gpio);
-		pr_err("Macle irq = %d\n", hall_info->irq);
+		pr_err("Macle hall irq = %d\n", hall_info->irq);
 
 		rc = devm_request_threaded_irq(&pdev->dev, hall_info->irq, NULL,
 			hall_interrupt,
@@ -229,10 +266,13 @@ static int hall_probe(struct platform_device *pdev)
 		irq_set_irq_wake(hall_info->irq, 1);
 
 	} else {
-		pr_err("Macle irq gpio not provided\n");
+		pr_err("Macle hall irq gpio not provided\n");
 		goto free_input_device;
 	}
-	pr_err("hall_probe end\n");
+
+	INIT_DELAYED_WORK(&hall_irq_event_work, hall_irq_event_workfunc);
+	hall_irq_event_wq = create_workqueue("hall_irq_event_wq");
+    pr_err("hall_probe end\n");
 #ifdef CONFIG_HALL_SYS
 	hall_register_class_dev(hall_info);
 #endif
@@ -266,6 +306,7 @@ static int hall_remove(struct platform_device *pdev)
 	free_irq(hall->irq, hall->ipdev);
 	gpio_free(hall->irq_gpio);
 	input_unregister_device(hall->ipdev);
+	destroy_workqueue(hall_irq_event_wq);
 	return 0;
 }
 

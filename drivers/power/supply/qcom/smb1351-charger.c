@@ -3283,14 +3283,6 @@ static int smb1351_charger_remove(struct i2c_client *client)
 	return 0;
 }
 
-static void smb1351_charger_shutdown(struct i2c_client *client)
-{
-	struct smb1351_charger *chip = i2c_get_clientdata(client);
-
-	if (!chip->parallel_charger_suspended)
-		smb1351_usb_suspend(chip, USER, true);
-}
-
 static int smb1351_suspend(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
@@ -3370,11 +3362,32 @@ static struct i2c_driver smb1351_charger_driver = {
 	},
 	.probe		= smb1351_charger_probe,
 	.remove		= smb1351_charger_remove,
-	.shutdown	= smb1351_charger_shutdown,
 	.id_table	= smb1351_charger_id,
 };
 
+#if defined(CONFIG_KERNEL_CUSTOM_WHYRED)
+static int __init smb1351_charger_init(void)
+{
+	struct power_supply *pl_psy = power_supply_get_by_name("parallel");
+
+	if (pl_psy) {
+		pr_info("Another parallel driver has been registered\n");
+		return -ENOENT;
+	}
+
+	return i2c_add_driver(&smb1351_charger_driver);
+}
+
+static void __exit smb1351_charger_exit(void)
+{
+	i2c_del_driver(&smb1351_charger_driver);
+}
+
+late_initcall(smb1351_charger_init);
+module_exit(smb1351_charger_exit);
+#else
 module_i2c_driver(smb1351_charger_driver);
+#endif
 
 MODULE_DESCRIPTION("smb1351 Charger");
 MODULE_LICENSE("GPL v2");
