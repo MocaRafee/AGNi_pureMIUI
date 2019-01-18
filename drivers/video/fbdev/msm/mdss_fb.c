@@ -93,7 +93,11 @@ bool backlight_dimmer = false;
 module_param(backlight_dimmer, bool, 0755);
 
 int backlight_min = 0;
-int backlight_max = 4095;
+#ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI
+int backlight_max = MDSS_MAX_BL_BRIGHTNESS_MIUI;
+#else
+int backlight_max = MDSS_MAX_BL_BRIGHTNESS;
+#endif
 module_param(backlight_min, int, 0755);
 module_param(backlight_max, int, 0755);
 
@@ -354,7 +358,7 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	if (backlight_dimmer) {
 		MDSS_BRIGHT_TO_BL_DIM(bl_lvl, value);
 	} else {
-		/* This maps android backlight level 0 to 255 into
+		/* This maps android backlight level 0 to 255 or 4095 into
 		   driver backlight level 0 to bl_max with rounding */
 		MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
 					mfd->panel_info->brightness_max);
