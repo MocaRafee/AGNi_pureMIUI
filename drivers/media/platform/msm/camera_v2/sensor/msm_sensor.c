@@ -307,7 +307,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 			__func__, vendorid, s_ctrl->sensordata->vendor_id_info->vendor_id);
 		rc = -1;
 		return rc;
-#ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI
+#ifdef CONFIG_MACH_XIAOMI_AGNI_MIUI
 	} else {
 #else
 	}
@@ -323,7 +323,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 				__func__, vcmid, s_ctrl->sensordata->vcm_id_info->vcm_id);
 			}
 		}
-#ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI
+#ifdef CONFIG_MACH_XIAOMI_AGNI_MIUI
 	}
 #endif
 

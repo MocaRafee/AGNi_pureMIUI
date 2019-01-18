@@ -93,7 +93,7 @@ bool backlight_dimmer = false;
 module_param(backlight_dimmer, bool, 0755);
 
 int backlight_min = 0;
-#ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI
+#ifdef CONFIG_MACH_XIAOMI_AGNI_MIUI
 int backlight_max = MDSS_MAX_BL_BRIGHTNESS_MIUI;
 #else
 int backlight_max = MDSS_MAX_BL_BRIGHTNESS;

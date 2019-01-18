@@ -1544,7 +1544,7 @@ static int wma_unified_radio_tx_power_level_stats_event_handler(void *handle,
 							 fixed_param->radio_id;
 	tx_power_level_values = (uint8_t *) param_tlvs->tx_time_per_power_level;
 
-#ifdef CONFIG_MACH_XIAOMI_WHYRED_AGNI_MIUI
+#ifdef CONFIG_MACH_XIAOMI_AGNI_MIUI
 	if (fixed_param->total_num_tx_power_levels >
 		rs_results->total_num_tx_power_levels) {
 		WMA_LOGE("%s: excess tx_power buffers:%d, total_num_tx_power_levels:%d",

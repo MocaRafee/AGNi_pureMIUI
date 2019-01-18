@@ -1,6 +1,6 @@
-config MACH_XIAOMI_WHYRED_AGNI_MIUI
-	bool "XIAOMI whyred configuration for MIUI"
-	depends on KERNEL_CUSTOM_WHYRED && ARCH_SDM630
+config MACH_XIAOMI_AGNI_MIUI
+	bool "AGNi configuration for MIUI"
+	depends on ARCH_SDM630
 
 menu "Qualcomm MSM specific device drivers"
 	depends on ARCH_QCOM
