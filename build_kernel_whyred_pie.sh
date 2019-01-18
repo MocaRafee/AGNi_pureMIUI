@@ -1,10 +1,13 @@
 #!/bin/sh
 export KERNELDIR=`readlink -f .`
-. ~/WORKING_DIRECTORY/AGNi_stamp.sh
-#. ~/WORKING_DIRECTORY/gcc-4.9-uber_aarch64.sh
-#. ~/WORKING_DIRECTORY/gcc-6.x-uber_aarch64.sh
-#. ~/WORKING_DIRECTORY/gcc-7.3.1_linaro_aarch64.sh
-. ~/WORKING_DIRECTORY/gcc-8.x-uber_aarch64.sh
+if [ -f ~/WORKING_DIRECTORY/AGNi_stamp.sh ];
+	then
+	. ~/WORKING_DIRECTORY/AGNi_stamp.sh
+fi
+if [ -f ~/WORKING_DIRECTORY/gcc-8.x-uber_aarch64.sh ];
+	then
+	. ~/WORKING_DIRECTORY/gcc-8.x-uber_aarch64.sh
+fi
 
 export ARCH=arm64
 export SUBARCH=arm64
@@ -23,13 +26,13 @@ fi
 
 make -j3 O=out ARCH=arm64
 
-rm -rf $KERNELDIR/BUILT_kenzo-pie
-mkdir -p $KERNELDIR/BUILT_kenzo-pie
+rm -rf $KERNELDIR/BUILT_whyred-pie
+mkdir -p $KERNELDIR/BUILT_whyred-pie
 
-#find -name '*.ko' -exec mv -v {} $KERNELDIR/BUILT_kenzo-pie/system/lib/modules \;
+#find -name '*.ko' -exec mv -v {} $KERNELDIR/BUILT_whyred-pie/system/lib/modules \;
 
-#mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_kenzo-pie/
-mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_kenzo-pie/
+#mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_whyred-pie/
+mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_whyred-pie/
 
 echo ""
 echo "AGNi purePIE has been built for whyred !!!"
