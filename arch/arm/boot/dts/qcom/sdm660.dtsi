@@ -413,7 +413,7 @@
 		};
 
 		cont_splash_mem: splash_region@9d400000 {
-			reg = <0x0 0x9d400000 0x0 0x02400000>;
+			reg = <0x0 0x9d400000 0x0 0x23ff000>;
 			label = "cont_splash_mem";
 		};
 		pstore_reserve_mem: pstore_reserve_mem_region@0 {
@@ -1604,9 +1604,9 @@
 		};
 	};
 
-	qcom,rmtfs_sharedmem@85e00000 {
+	qcom,rmtfs_sharedmem@0 {
 		compatible = "qcom,sharedmem-uio";
-		reg = <0x85e00000 0x200000>;
+		reg = <0x0 0x200000>;
 		reg-names = "rmtfs";
 		qcom,client-id = <0x00000001>;
 		qcom,guard-memory;
