@@ -3529,9 +3529,9 @@ static void smblib_micro_usb_plugin(struct smb_charger *chg, bool vbus_rising)
 	if (vbus_rising) {
 		/* use the typec flag even though its not typec */
 		chg->typec_present = 1;
-		smblib_err(chg, "lct micro usb plugin\n");
+//		smblib_err(chg, "lct micro usb plugin\n");
 	} else {
-		smblib_err(chg, "lct micro usb plugout\n");
+//		smblib_err(chg, "lct micro usb plugout\n");
 		chg->typec_present = 0;
 		smblib_update_usb_type(chg);
 		extcon_set_cable_state_(chg->extcon, EXTCON_USB, false);

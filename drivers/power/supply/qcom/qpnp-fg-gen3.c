@@ -600,15 +600,15 @@ static int fg_get_battery_temp(struct fg_chip *chip, int *val)
 			BATT_INFO_BATT_TEMP_LSB(chip), rc);
 		return rc;
 	}
-		pr_err("addr=0x%04x,buf1=%04x buf0=%04x\n",
-			BATT_INFO_BATT_TEMP_LSB(chip), buf[1], buf[0]);
+//		pr_err("addr=0x%04x,buf1=%04x buf0=%04x\n",
+//			BATT_INFO_BATT_TEMP_LSB(chip), buf[1], buf[0]);
 	temp = ((buf[1] & BATT_TEMP_MSB_MASK) << 8) |
 		(buf[0] & BATT_TEMP_LSB_MASK);
 	temp = DIV_ROUND_CLOSEST(temp, 4);
 
 	/* Value is in Kelvin; Convert it to deciDegC */
 	temp = (temp - 273) * 10;
-		pr_err("LCT TEMP=%d\n", temp);
+//	pr_err("LCT TEMP=%d\n", temp);
 
 #if defined(CONFIG_KERNEL_CUSTOM_TULIP)
 	if (temp < -40){
@@ -2133,8 +2133,8 @@ static int fg_adjust_recharge_voltage(struct fg_chip *chip)
 		recharge_volt_mv = 4050;
 	if (chip->health == POWER_SUPPLY_HEALTH_COOL)
 		recharge_volt_mv = 4282;
-	pr_err("lct health: %d chg_status: %d chg_done: %d recharge_volt_mv: %d\n",
-		chip->health, chip->charge_status, chip->charge_done, recharge_volt_mv);
+//	pr_err("lct health: %d chg_status: %d chg_done: %d recharge_volt_mv: %d\n",
+//		chip->health, chip->charge_status, chip->charge_done, recharge_volt_mv);
 #elif defined(CONFIG_KERNEL_CUSTOM_TULIP)
 if (chip->health == POWER_SUPPLY_HEALTH_WARM)
 	recharge_volt_mv = 4050;
