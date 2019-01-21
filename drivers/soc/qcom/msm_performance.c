@@ -30,9 +30,6 @@ static unsigned int use_input_evts_with_hi_slvt_detect;
 static struct mutex managed_cpus_lock;
 
 
-//static int touchboost = 1;
-
-
 /* Maximum number to clusters that this module will manage*/
 static unsigned int num_clusters;
 struct cluster {
@@ -399,7 +396,7 @@ device_param_cb(managed_online_cpus, &param_ops_managed_online_cpus,
  */
 static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 {
-/*	int i, j, ntokens = 0;
+	int i, j, ntokens = 0;
 	unsigned int val, cpu;
 	const char *cp = buf;
 	struct cpu_status *i_cpu_stats;
@@ -407,15 +404,11 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	cpumask_var_t limit_mask;
 	int ret;
 
-	if (touchboost == 0)
-		return 0;
-
-
 	while ((cp = strpbrk(cp + 1, " :")))
 		ntokens++;
-*/
+
 	/* CPU:value pair */
-/*	if (!(ntokens % 2))
+	if (!(ntokens % 2))
 		return -EINVAL;
 
 	cp = buf;
@@ -434,7 +427,7 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 		cp = strnchr(cp, strlen(cp), ' ');
 		cp++;
 	}
-*/
+
 	/*
 	 * Since on synchronous systems policy is shared amongst multiple
 	 * CPUs only one CPU needs to be updated for the limit to be
@@ -442,7 +435,7 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	 * of other CPUs in the cluster once it is done for at least one CPU
 	 * in the cluster
 	 */
-/*	get_online_cpus();
+	get_online_cpus();
 	for_each_cpu(i, limit_mask) {
 		i_cpu_stats = &per_cpu(cpu_stats, i);
 
@@ -458,7 +451,7 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 			cpumask_clear_cpu(j, limit_mask);
 	}
 	put_online_cpus();
-*/
+
 	return 0;
 }
 
@@ -486,7 +479,7 @@ module_param_cb(cpu_min_freq, &param_ops_cpu_min_freq, NULL, 0644);
  */
 static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 {
-/*	int i, j, ntokens = 0;
+	int i, j, ntokens = 0;
 	unsigned int val, cpu;
 	const char *cp = buf;
 	struct cpu_status *i_cpu_stats;
@@ -494,14 +487,11 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 	cpumask_var_t limit_mask;
 	int ret;
 
-	if (touchboost == 0)
-		return 0;
-	
 	while ((cp = strpbrk(cp + 1, " :")))
 		ntokens++;
-*/
+
 	/* CPU:value pair */
-/*	if (!(ntokens % 2))
+	if (!(ntokens % 2))
 		return -EINVAL;
 
 	cp = buf;
@@ -536,7 +526,7 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 			cpumask_clear_cpu(j, limit_mask);
 	}
 	put_online_cpus();
-*/
+
 	return 0;
 }
 
