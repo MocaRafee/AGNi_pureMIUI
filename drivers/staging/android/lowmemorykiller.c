@@ -108,6 +108,26 @@ static bool lowmem_whitelist(char *name)
 	if (name == NULL)return ret;
 
 	if ((!strcmp(name, "com.miui.home")) ||
+		(!strcmp(name, "com.android.launcher3")) ||
+		(!strcmp(name, "com.android.quickstep")) ||
+		(!strcmp(name, "org.lineageos.snap")) ||
+		(!strcmp(name, "com.teslacoilsw.launcher")) ||
+		(!strcmp(name, "com.Tele.GCam")) ||
+		(!strcmp(name, "com.google.android.Redmi4X")) ||
+		(!strcmp(name, "com.teslacoilsw.launcher")) ||
+		(!strcmp(name, "com.android.launcher3")) ||
+		(!strcmp(name, "com.google.android.apps.nexuslauncher")) ||
+		(!strcmp(name, "ch.deletescape.lawnchair.plah")) ||
+		(!strcmp(name, "com.google.android.launcher")) ||
+		(!strcmp(name, "ru.whatau.cpl")) ||
+		(!strcmp(name, "amirz.rootless.nexuslauncher")) ||
+		(!strcmp(name, "com.google.android.GooglrCamera")) ||
+		(!strcmp(name, "ch.deletescape.lawnchair.ci")) ||
+		(!strcmp(name, "com.bsgmod.camera")) ||
+		(!strcmp(name, "com.whatsapp")) ||		
+		(!strcmp(name, "com.android.contacts")) ||
+		(!strcmp(name, "com.android.mms")) ||
+		(!strcmp(name, "com.xiaomi.hm.health")) ||
 		(!strcmp(name, ".android.camera")))
 	{
 		ret = true;
