@@ -11,7 +11,7 @@ fi
 
 export ARCH=arm64
 export SUBARCH=arm64
-mkdir -p out
+mkdir -p /media/psndna88/ANDROID/COMPILED_OUT
 
 echo ""
 echo " Cross-compiling AGNi purePIE kernel whyred..."
@@ -19,20 +19,19 @@ echo ""
 
 cd $KERNELDIR/
 
-if [ ! -f $KERNELDIR/out/.config ];
+if [ ! -f /media/psndna88/ANDROID/COMPILED_OUT ];
 then
-    make defconfig O=out ARCH=arm64 agni_whyred-pie_defconfig
+    make defconfig O=/media/psndna88/ANDROID/COMPILED_OUT ARCH=arm64 agni_whyred-pie_defconfig
 fi
 
-make -j3 O=out ARCH=arm64
+make -j3 O=/media/psndna88/ANDROID/COMPILED_OUT ARCH=arm64
 
 rm -rf $KERNELDIR/BUILT_whyred-pie
 mkdir -p $KERNELDIR/BUILT_whyred-pie
 
 #find -name '*.ko' -exec mv -v {} $KERNELDIR/BUILT_whyred-pie/system/lib/modules \;
 
-#mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_whyred-pie/
-mv $KERNELDIR/out/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_whyred-pie/
+mv /media/psndna88/ANDROID/COMPILED_OUT/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_whyred-pie/
 
 echo ""
 echo "AGNi purePIE has been built for whyred !!!"
