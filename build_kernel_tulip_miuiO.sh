@@ -11,7 +11,7 @@ fi
 
 export ARCH=arm64
 export SUBARCH=arm64
-mkdir -p /media/psndna88/ANDROID/COMPILED_OUT
+mkdir -p /mnt/ANDROID/COMPILED_OUT
 
 echo ""
 echo " Cross-compiling AGNi pureMIUI kernel tulip..."
@@ -19,19 +19,19 @@ echo ""
 
 cd $KERNELDIR/
 
-if [ ! -f /media/psndna88/ANDROID/COMPILED_OUT/.config ];
+if [ ! -f /mnt/ANDROID/COMPILED_OUT/.config ];
 then
-    make defconfig O=/media/psndna88/ANDROID/COMPILED_OUT ARCH=arm64 agni_tulip-miui_defconfig
+    make defconfig O=/mnt/ANDROID/COMPILED_OUT ARCH=arm64 agni_tulip-miui_defconfig
 fi
 
-make -j3 O=/media/psndna88/ANDROID/COMPILED_OUT ARCH=arm64
+make -j3 O=/mnt/ANDROID/COMPILED_OUT ARCH=arm64
 
 rm -rf $KERNELDIR/BUILT_tulip-miui
 mkdir -p $KERNELDIR/BUILT_tulip-miui
 
 #find -name '*.ko' -exec mv -v {} $KERNELDIR/BUILT_tulip-miui/system/lib/modules \;
 
-mv /media/psndna88/ANDROID/COMPILED_OUT/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_tulip-miui/zImage
+mv /mnt/ANDROID/COMPILED_OUT/arch/arm64/boot/Image.*-dtb $KERNELDIR/BUILT_tulip-miui/
 
 echo ""
 echo "AGNi pureMIUI has been built for tulip !!!"
