@@ -52,6 +52,9 @@
 
 #include <linux/swapops.h>
 #include <linux/balloon_compaction.h>
+#ifdef CONFIG_RTMM
+#include <linux/rtmm.h>
+#endif
 
 #include "internal.h"
 
@@ -2213,7 +2216,7 @@ static void get_scan_count(struct lruvec *lruvec, int swappiness,
 	 * system is under heavy pressure.
 	 */
 	if (!IS_ENABLED(CONFIG_BALANCE_ANON_FILE_RECLAIM) &&
-			!inactive_file_is_low(lruvec) &&
+			!inactive_file_is_low(lruvec) && (swappiness != 200) &&
 			get_lru_size(lruvec, LRU_INACTIVE_FILE) >> sc->priority) {
 		scan_balance = SCAN_FILE;
 		goto out;
@@ -2338,6 +2341,12 @@ static void shrink_lruvec(struct lruvec *lruvec, int swappiness,
 	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
 	struct blk_plug plug;
 	bool scan_adjusted;
+
+#ifdef CONFIG_RTMM
+	if (unlikely(rtmm_reclaim(current->comm))) {
+		swappiness = rtmm_reclaim_swappiness();
+	}
+#endif
 
 	get_scan_count(lruvec, swappiness, sc, nr, lru_pages);
 
@@ -3699,6 +3708,43 @@ unsigned long shrink_all_memory(unsigned long nr_to_reclaim)
 	return nr_reclaimed;
 }
 #endif /* CONFIG_HIBERNATION */
+
+#ifdef CONFIG_RTMM
+/*
+  * reclaim anon/file pages from global lru
+  *
+  * TODO: merge with shrink_all_memory()??
+  */
+unsigned long reclaim_global(unsigned long nr_to_reclaim)
+{
+	struct reclaim_state reclaim_state;
+	struct scan_control sc = {
+		.nr_to_reclaim = max(nr_to_reclaim, SWAP_CLUSTER_MAX),
+		.gfp_mask = GFP_HIGHUSER_MOVABLE,
+		.order = 0,
+		.priority = DEF_PRIORITY,
+		.may_writepage = 1,
+		.may_unmap = 1,
+		.may_swap = 1,
+	};
+	struct zonelist *zonelist = node_zonelist(numa_node_id(), sc.gfp_mask);
+	struct task_struct *p = current;
+	unsigned long nr_reclaimed;
+
+	p->flags |= PF_MEMALLOC;
+	lockdep_set_current_reclaim_state(sc.gfp_mask);
+	reclaim_state.reclaimed_slab = 0;
+	p->reclaim_state = &reclaim_state;
+
+	nr_reclaimed = do_try_to_free_pages(zonelist, &sc);
+
+	p->reclaim_state = NULL;
+	lockdep_clear_current_reclaim_state();
+	p->flags &= ~PF_MEMALLOC;
+
+	return nr_reclaimed;
+}
+#endif
 
 /* It's optimal to keep kswapds on the same CPUs as their memory, but
    not required for correctness.  So if the last cpu in a node goes

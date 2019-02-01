@@ -370,6 +370,10 @@ struct vm_area_struct {
 #ifdef CONFIG_UKSM
 	struct vma_slot *uksm_vma_slot;
 #endif
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	seqcount_t vm_sequence;
+	atomic_t vm_ref_count;		/* see vma_get(), vma_put() */
+#endif
 };
 
 struct core_thread {
@@ -407,6 +411,9 @@ struct kioctx_table;
 struct mm_struct {
 	struct vm_area_struct *mmap;		/* list of VMAs */
 	struct rb_root mm_rb;
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	rwlock_t mm_rb_lock;
+#endif
 	u64 vmacache_seqnum;                   /* per-thread vmacache */
 #ifdef CONFIG_MMU
 	unsigned long (*get_unmapped_area) (struct file *filp,
