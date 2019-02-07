@@ -426,7 +426,7 @@ out:
 //		trace_f2fs_get_victim(sbi->sb, type, gc_type, &p,
 //				sbi->cur_victim_sec,
 //				prefree_segments(sbi), free_segments(sbi));
-//	mutex_unlock(&dirty_i->seglist_lock);
+	mutex_unlock(&dirty_i->seglist_lock);
 
 	return (p.min_segno == NULL_SEGNO) ? 0 : 1;
 }
