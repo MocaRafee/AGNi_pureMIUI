@@ -800,9 +800,9 @@ exit_ibat:
 
 reschedule_ibat:
 	mutex_unlock(&perph_data->state_trans_lock);
-		queue_delayed_work(system_power_efficient_wq,
-		        &perph_data->poll_work,
-		msecs_to_jiffies(perph_data->polling_delay_ms));
+	queue_delayed_work(system_power_efficient_wq,
+	        &perph_data->poll_work,
+	msecs_to_jiffies(perph_data->polling_delay_ms));
 //	trace_bcl_hw_event("ibat poll low. Exit");
 	return;
 }
@@ -847,9 +847,9 @@ exit_vbat:
 
 reschedule_vbat:
 	mutex_unlock(&perph_data->state_trans_lock);
-		queue_delayed_work(system_power_efficient_wq,
-		        &perph_data->poll_work,
-		msecs_to_jiffies(perph_data->polling_delay_ms));
+	queue_delayed_work(system_power_efficient_wq,
+	        &perph_data->poll_work,
+	msecs_to_jiffies(perph_data->polling_delay_ms));
 //	trace_bcl_hw_event("vbat poll high. Exit");
 	return;
 }
@@ -891,8 +891,8 @@ static irqreturn_t bcl_handle_ibat(int irq, void *data)
 //				perph_data->trip_val);
 		perph_data->ops.notify(perph_data->param_data,
 			perph_data->trip_val, BCL_HIGH_TRIP);
-			queue_delayed_work(system_power_efficient_wq,
-		                &perph_data->poll_work,
+		queue_delayed_work(system_power_efficient_wq,
+             &perph_data->poll_work,
 			msecs_to_jiffies(perph_data->polling_delay_ms));
 	} else {
 		pr_debug("Ignoring interrupt\n");
@@ -939,8 +939,8 @@ static irqreturn_t bcl_handle_vbat(int irq, void *data)
 //				perph_data->trip_val);
 		perph_data->ops.notify(perph_data->param_data,
 			perph_data->trip_val, BCL_LOW_TRIP);
-			queue_delayed_work(system_power_efficient_wq,
-		                &perph_data->poll_work,
+		queue_delayed_work(system_power_efficient_wq,
+            &perph_data->poll_work,
 			msecs_to_jiffies(perph_data->polling_delay_ms));
 	} else {
 		pr_debug("Ignoring interrupt\n");
