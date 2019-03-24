@@ -47,6 +47,17 @@ echo "          BATCH MODE: Built AGNi MIUI-O tulip variant!!!"
 echo "-----------------------------------------------------------------------"
 echo " "
 
+echo " "
+echo "-----------------------------------------------------------------------"
+echo " "
+echo "          BATCH MODE: Building AGNi MIUI-P tulip variant..."
+./build_kernel_tulip_miuiP.sh || exit 1
+rm $COUT/.config $COUT/.config.old
+echo " "
+echo "          BATCH MODE: Built AGNi MIUI-P tulip variant!!!"
+echo "-----------------------------------------------------------------------"
+echo " "
+
 echo "-----------------------------------------------------------------------"
 echo " "
 echo "          BATCH MODE: Building AGNi tulip PIE variant..."
