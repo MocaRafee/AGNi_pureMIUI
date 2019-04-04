@@ -407,7 +407,7 @@ static int stm_char_release(struct inode *inode, struct file *file)
 	 * matches the stm_char_open()'s
 	 * class_find_device() + try_module_get()
 	 */
-	stm_put_device(stm);
+	stm_put_device(stmf->stm);
 	kfree(stmf);
 
 	return 0;
